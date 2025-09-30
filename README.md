@@ -1,76 +1,236 @@
-# ScamGuard Senior - Scam Detection App for Seniors
+# Senior Scam Detection App
 
-A mobile app that protects seniors from email and text message scams through AI-powered analysis.
+AI-powered scam detection mobile app designed specifically for users 75+ with ultra-simple interface and large fonts.
 
-## Product Vision
+## Core Purpose
 
-Simple, accessible scam detection designed specifically for users aged 75+. Shows clear RED/YELLOW/GREEN results with minimal complexity.
+Analyzes text messages and emails for scams using AI, showing simple **RED/YELLOW/GREEN** results with clear explanations.
 
-## Core Features
+## Key Features
 
-- **Message Analysis**: Check texts and emails for scam indicators
-- **Traffic Light Results**: Clear color-coded warnings (Red/Yellow/Green)
-- **Senior-Friendly Design**: Large fonts (24pt+), high contrast, simple navigation
-- **Family Dashboard**: Adult children can monitor alerts
-- **Auto-Monitoring**: Optional real-time scanning of incoming messages
+### FREE Tier
+- ✅ Check up to 10 messages per month
+- ✅ Get RED/YELLOW/GREEN result with basic explanation
+- ✅ Access scam education library
 
-## Freemium Model
+### PREMIUM Tier ($8.99/month)
+- ⭐ Unlimited message checking
+- ⭐ Auto-monitor incoming messages (optional)
+- ⭐ Family dashboard for adult children to see alerts
+- ⭐ Detailed explanations of why message is suspicious
+- ⭐ Weekly scam alert notifications
 
-**Free Tier:**
-- 10 message checks per month
-- Basic scam detection
-- Educational content
+## Scam Types Detected
 
-**Premium Tier ($8.99/month):**
-- Unlimited checks
-- Auto-monitoring
-- Family dashboard
-- Detailed explanations
+- 🚨 Grandparent scams
+- 🚨 Government impersonation
+- 🚨 Phishing attacks
+- 🚨 Urgency tactics
+- 🚨 Romance scams
+- 🚨 Lottery/Prize scams
+- 🚨 Tech support scams
+
+## Results Display
+
+- 🔴 **RED** = Definite scam with warning
+- 🟡 **YELLOW** = Suspicious, verify sender
+- 🟢 **GREEN** = Appears safe, still be careful
+
+Each result shows one simple sentence (max 12 words)
+
+## Senior-Friendly Design
+
+### Typography
+- Minimum 24pt body text
+- 36pt headlines
+- 72pt results
+- 1.5x line spacing throughout
+
+### Interface
+- Massive buttons (88x88pt minimum)
+- No gestures - tap only
+- One action per screen
+- Simple 3-tab navigation: Home / Recent / Help
+- Always-visible back button
+
+### Accessibility
+- High contrast black text on white background
+- Color + icon + text for colorblind users
+- No gray-on-gray, no blue/purple
+- Simple error messages
+
+## Project Structure
+
+```
+/workspace
+├── App.tsx                          # Root component
+├── app.json                         # Expo configuration
+├── package.json                     # Dependencies
+├── tsconfig.json                    # TypeScript config
+└── src/
+    ├── components/                  # Reusable components
+    │   ├── SeniorButton.tsx        # Large, accessible button
+    │   ├── BackButton.tsx          # Always-visible back button
+    │   └── ResultCard.tsx          # Color-coded result display
+    ├── context/
+    │   └── AppContext.tsx          # Global state management
+    ├── data/
+    │   └── scamEducation.ts        # Educational content library
+    ├── navigation/
+    │   └── MainNavigator.tsx       # Tab + stack navigation
+    ├── screens/
+    │   ├── HomeScreen.tsx          # Main message checking
+    │   ├── ResultScreen.tsx        # Show analysis result
+    │   ├── RecentScreen.tsx        # History of checks
+    │   ├── HelpScreen.tsx          # Education & support
+    │   ├── UpgradeScreen.tsx       # Premium subscription
+    │   └── FamilyDashboardScreen.tsx # Family monitoring
+    ├── services/
+    │   └── scamDetection.ts        # AI/ML scam analysis
+    ├── theme/
+    │   ├── colors.ts               # High contrast color system
+    │   ├── typography.ts           # Large font specifications
+    │   └── spacing.ts              # Touch target sizes
+    └── types/
+        └── index.ts                # TypeScript interfaces
+```
+
+## Setup & Installation
+
+### Prerequisites
+- Node.js 16+
+- npm or yarn
+- Expo CLI
+
+### Install Dependencies
+```bash
+npm install
+```
+
+### Run Development Server
+```bash
+# Start Expo
+npm start
+
+# Run on iOS
+npm run ios
+
+# Run on Android
+npm run android
+
+# Run on Web
+npm run web
+```
+
+## AI Integration
+
+The app currently uses rule-based scam detection. For production, integrate with:
+
+### OpenAI API (Recommended)
+```typescript
+// Update src/services/scamDetection.ts
+const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${OPENAI_API_KEY}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    model: 'gpt-4',
+    messages: [
+      {
+        role: 'system',
+        content: 'You are a scam detection expert for seniors...'
+      },
+      {
+        role: 'user',
+        content: messageContent
+      }
+    ]
+  })
+});
+```
+
+### Environment Variables
+Create `.env` file:
+```
+OPENAI_API_KEY=your_api_key_here
+STRIPE_PUBLIC_KEY=your_stripe_key
+```
+
+## Family Dashboard (Premium)
+
+Adult children can:
+- ✅ See summary: "3 scams blocked this week"
+- ✅ Receive alerts when parent encounters scams
+- 🔒 **Privacy**: Family sees alerts only, NOT message content
 
 ## Design Principles
 
-1. **Simplicity First**: If a 90-year-old can't use it independently, it's too complex
-2. **Large Everything**: 24pt body text, 36pt headlines, 72pt results, 88pt buttons
-3. **High Contrast**: Black on white, WCAG AAA compliant
-4. **No Gestures**: Tap only, no swipe/pinch/long-press
-5. **One Action Per Screen**: Minimal cognitive load
+### Key Principle
+**If a 90-year-old can't use it independently on first try, redesign it simpler.**
 
-## Tech Stack
+### What's Included
+- ✅ Ultra-large fonts and buttons
+- ✅ High contrast black/white
+- ✅ Tap-only interaction
+- ✅ Simple 3-tab navigation
+- ✅ Clear error messages
+- ✅ Color + icon + text labels
 
-- **iOS**: Swift/SwiftUI (iOS 15+)
-- **Android**: Kotlin/Jetpack Compose (Android 10+)
-- **AI**: OpenAI GPT-4 or Anthropic Claude API
-- **Privacy**: No message storage on servers, local caching only
+### What's NOT Included
+- ❌ No dark mode
+- ❌ No social sharing
+- ❌ No gestures (swipe/pinch)
+- ❌ No video tutorials
+- ❌ No gamification
+- ❌ Minimal settings (3-5 toggles max)
 
-## Target Audience
+## Testing
 
-- **Primary Users**: Seniors 75+ years old
-- **Secondary Users**: Adult children (40-60) purchasing for parents
-- **Market**: 4.85B+ annual losses to senior scams in US
+### Manual Testing Checklist
+- [ ] Paste and check message (< 3 seconds)
+- [ ] Verify RED result for obvious scams
+- [ ] Verify YELLOW for suspicious messages
+- [ ] Check free tier limit (10 messages)
+- [ ] Test premium upgrade flow
+- [ ] Verify family dashboard access control
+- [ ] Test educational articles display
+- [ ] Confirm all buttons are 88pt minimum
+- [ ] Verify high contrast throughout
 
-## Competitive Advantage
+## Deployment
 
-- **Auto-monitoring** (competitors require manual upload)
-- **Email integration** (competitors focus on texts only)
-- **Family dashboard** (unique premium feature)
-- **Android support** (main competitor is iOS-only)
+### iOS App Store
+1. Update version in `app.json`
+2. Build: `eas build --platform ios`
+3. Submit: `eas submit --platform ios`
 
-## Success Metrics
+### Google Play Store
+1. Update version in `app.json`
+2. Build: `eas build --platform android`
+3. Submit: `eas submit --platform android`
 
-- 80%+ seniors can check message independently on first attempt
-- 90%+ accuracy on known scams
-- <5% false positives
-- 4.5+ star app store rating
+## Support Resources
 
-## Getting Started
-
-_Coming soon: Setup instructions for development_
+### Emergency Contacts (Built-in)
+- FTC Fraud Reporting: 1-877-382-4357
+- Elder Abuse Hotline: 1-800-677-1116
 
 ## License
 
-Proprietary - All rights reserved
+Copyright © 2025. All rights reserved.
+
+## Contributing
+
+This app is designed for seniors. When contributing:
+1. Test with users 75+ if possible
+2. Maintain minimum 24pt font size
+3. Keep interactions tap-only
+4. Ensure 88pt minimum touch targets
+5. Use high contrast (black/white)
+6. Write simple, clear copy (max 12 words)
 
 ---
 
-**Status**: Initial repository setup
-**Version**: 0.1.0 (Pre-development)
+**Remember: Simplicity saves seniors from scams.**
