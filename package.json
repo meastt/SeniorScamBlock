@@ -2,6 +2,7 @@
   "name": "elder-sentry",
   "version": "1.0.0",
   "description": "Elder Sentry - AI-powered scam protection app for seniors",
+  "build": "1",
   "main": "index.js",
   "scripts": {
     "start": "expo start",

@@ -114,10 +114,7 @@ const TipsScreen = () => {
                   </View>
                 </View>
                 <View style={styles.articleFooter}>
-                  <Text style={[styles.scamTypeBadge, { color: accentColor }]}>
-                    {article.scamType}
-                  </Text>
-                  <Text style={styles.readMoreText}>Tap to read →</Text>
+                  <Text style={styles.readMoreText}>Tap to read full guide →</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -296,21 +293,14 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   articleFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginTop: Spacing.sm,
     paddingTop: Spacing.sm,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-  },
-  scamTypeBadge: {
-    ...Typography.caption,
-    fontWeight: '700',
-    textTransform: 'uppercase',
+    alignItems: 'center',
   },
   readMoreText: {
-    ...Typography.caption,
+    ...Typography.body,
     color: Colors.primary,
     fontWeight: '600',
   },
