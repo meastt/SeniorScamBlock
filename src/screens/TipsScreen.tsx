@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BackButton } from '../components/BackButton';
 import { EDUCATION_ARTICLES } from '../data/scamEducation';
 import { EducationArticle } from '../types';
@@ -30,7 +30,7 @@ const TipsScreen = () => {
     if (scamType.includes('Romance')) return Colors.premium;
     if (scamType.includes('Lottery')) return Colors.success;
     if (scamType.includes('Tech Support')) return Colors.primary;
-    return Colors.primaryButton;
+    return Colors.primary;
   };
 
   const getArticleIcon = (scamType: string) => {
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   },
   quickTipsTitle: {
     ...Typography.title,
-    color: Colors.successDark,
+    color: Colors.safeGreenDark,
     marginBottom: Spacing.lg,
     fontWeight: '700',
   },

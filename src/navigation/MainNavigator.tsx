@@ -65,7 +65,7 @@ const MainNavigator = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: Colors.primaryButton,
+        tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textSecondary,
         tabBarLabelStyle: styles.tabLabel,
         tabBarItemStyle: styles.tabItem,

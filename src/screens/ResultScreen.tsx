@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { ResultCard } from '../components/ResultCard';
 import { BackButton } from '../components/BackButton';
@@ -280,12 +281,12 @@ const styles = StyleSheet.create({
   scamTypeLabel: {
     ...Typography.callout,
     fontWeight: '700',
-    color: Colors.warningDark,
+    color: Colors.warningYellowDark,
     marginBottom: Spacing.sm,
   },
   scamTypeText: {
     ...Typography.bodyLarge,
-    color: Colors.warningDark,
+    color: Colors.warningYellowDark,
     fontWeight: '600',
   },
 

@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   Alert,
   KeyboardAvoidingView,
@@ -12,6 +11,7 @@ import {
   Dimensions,
   Keyboard,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SeniorButton } from '../components/SeniorButton';
 import { AnalyzingButton } from '../components/AnalyzingButton';

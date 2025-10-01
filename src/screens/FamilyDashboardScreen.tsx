@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TextInput,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { SeniorButton } from '../components/SeniorButton';
 import { BackButton } from '../components/BackButton';
 import { useApp } from '../context/AppContext';
