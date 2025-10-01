@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Scam Guard",
-    "slug": "senior-scam-detector",
+    "name": "Elder Sentry",
+    "slug": "elder-sentry",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,8 +16,8 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.scamguard.senior",
-      "associatedDomains": ["applinks:scamguard.app"],
+      "bundleIdentifier": "com.eldersentry.app",
+      "associatedDomains": ["applinks:eldersentry.com"],
       "infoPlist": {
         "NSUserActivityTypes": ["INSendMessageIntent"],
         "UISupportsDocumentBrowser": true
@@ -28,7 +28,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.scamguard.senior",
+      "package": "com.eldersentry.app",
       "intentFilters": [
         {
           "action": "SEND",

@@ -1,7 +1,7 @@
 {
-  "name": "senior-scam-detector",
+  "name": "elder-sentry",
   "version": "1.0.0",
-  "description": "AI-powered scam detection app designed for seniors 75+",
+  "description": "Elder Sentry - AI-powered scam protection app for seniors",
   "main": "index.js",
   "scripts": {
     "start": "expo start",

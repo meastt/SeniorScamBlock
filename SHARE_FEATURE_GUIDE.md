@@ -1,4 +1,4 @@
-# Share Feature Guide - Scam Guard
+# Share Feature Guide - Elder Sentry
 
 ## What's New? 🎉
 
@@ -16,7 +16,7 @@ Seniors can now check suspicious messages **directly from their Messages or Emai
 2. Find the suspicious message
 3. **Long-press** (press and hold) on the message text
 4. Tap **"Copy"** from the popup menu
-5. Open **Scam Guard** app
+5. Open **Elder Sentry** app
 6. Tap and hold in the input box → **"Paste"**
 7. Tap **"Check Message"**
 
@@ -25,14 +25,14 @@ Seniors can now check suspicious messages **directly from their Messages or Emai
 1. Open your **Mail** or **Gmail** app
 2. Open the suspicious email
 3. Tap the **Share** button (usually looks like ⬆️ or a box with an arrow)
-4. Select **"Scam Guard"**
+4. Select **"Elder Sentry"**
 5. The message will be checked automatically!
 
 ### Method 3: Share from Other Apps (Safari, Notes, etc.)
 
 1. Select text in **Safari**, **Notes**, or other apps
 2. Tap **"Share"**
-3. Select **"Scam Guard"**
+3. Select **"Elder Sentry"**
 4. Automatic analysis!
 
 ## Why Copy/Paste Works Well for Seniors
@@ -67,12 +67,12 @@ The share functionality is configured in:
 1. Build the app: `npx expo run:ios`
 2. Open Messages app
 3. Long-press a message
-4. Tap Share → Scam Guard
+4. Tap Share → Elder Sentry
 
 #### On Android Emulator:
 1. Build the app: `npx expo run:android`
 2. Open any app with text
-3. Select text → Share → Scam Guard
+3. Select text → Share → Elder Sentry
 
 #### Note for Expo Go:
 Share extensions may not work in Expo Go. You need to build a development build:

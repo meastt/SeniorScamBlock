@@ -1,4 +1,4 @@
-# Senior Scam Detection App
+# Elder Sentry
 
 AI-powered scam detection mobile app designed specifically for users 75+ with ultra-simple interface and large fonts.
 

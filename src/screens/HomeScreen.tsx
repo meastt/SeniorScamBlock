@@ -113,7 +113,7 @@ const HomeScreen = () => {
             <View style={styles.heroIcon}>
               <Text style={styles.heroEmoji}>🛡️</Text>
             </View>
-            <Text style={styles.heroTitle}>SeniorScam Block</Text>
+            <Text style={styles.heroTitle}>Elder Sentry</Text>
             <Text style={styles.heroSubtitle}>
               AI-powered protection for your peace of mind
             </Text>

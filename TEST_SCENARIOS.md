@@ -1,4 +1,4 @@
-# Senior Scam Detection App - Test Scenarios
+# Elder Sentry - Test Scenarios
 
 ## Test Message Examples
 

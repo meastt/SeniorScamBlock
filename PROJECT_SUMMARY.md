@@ -1,4 +1,4 @@
-# Senior Scam Detection App - Project Summary
+# Elder Sentry - Project Summary
 
 ## 🎯 Project Overview
 
@@ -434,7 +434,7 @@ Use sample messages from `TEST_SCENARIOS.md` to test scam detection.
 ## 🆘 Support & Maintenance
 
 ### Support Channels (Planned)
-- Email: support@scamguard.app
+- Email: support@eldersentry.com
 - Phone: 1-800-XXX-XXXX (recommended for seniors)
 - In-app help center
 - Emergency contacts (FTC, Elder Abuse Hotline)

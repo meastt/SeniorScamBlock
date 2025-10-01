@@ -1,4 +1,4 @@
-# Senior Scam Detection App - Design Specifications
+# Elder Sentry - Design Specifications
 
 ## Design Philosophy
 

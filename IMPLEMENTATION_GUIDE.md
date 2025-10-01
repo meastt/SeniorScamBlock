@@ -1,4 +1,4 @@
-# Senior Scam Detection App - Implementation Guide
+# Elder Sentry - Implementation Guide
 
 ## Quick Start
 
@@ -364,7 +364,7 @@ await SecureStore.setItemAsync('user_data', encryptedData);
 ## Support Resources
 
 ### Technical Support
-- Email: support@scamguard.app
+- Email: support@eldersentry.com
 - Phone: 1-800-XXX-XXXX (consider for senior audience)
 - In-app help center
 

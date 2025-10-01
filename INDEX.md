@@ -1,4 +1,4 @@
-# Senior Scam Detection App - Documentation Index
+# Elder Sentry - Documentation Index
 
 ## 📚 Quick Navigation
 
