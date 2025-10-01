@@ -3,19 +3,21 @@ import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View } from '
 import { Colors, Shadows } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
+import { Responsive } from '../theme/responsive';
 
 interface SeniorButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'danger' | 'success';
+  variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'premium' | 'ghost';
   disabled?: boolean;
   icon?: React.ReactNode;
   fullWidth?: boolean;
+  size?: 'large' | 'medium' | 'small';
 }
 
 /**
- * Modern, large button designed for seniors
- * Beautiful shadows, vibrant colors, minimum 88pt height for easy tapping
+ * Premium button component designed for seniors
+ * Sophisticated design with excellent accessibility and premium feel
  */
 export const SeniorButton: React.FC<SeniorButtonProps> = ({
   title,
@@ -24,18 +26,26 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
   disabled = false,
   icon,
   fullWidth = false,
+  size = 'large',
 }) => {
   const getButtonStyle = (): ViewStyle => {
+    const responsiveHeight = Responsive.getButtonHeight();
     const baseStyle: ViewStyle = {
-      minHeight: Spacing.buttonHeight,
-      minWidth: Spacing.buttonMinWidth,
-      paddingHorizontal: Spacing.lg,
-      paddingVertical: Spacing.md,
-      borderRadius: 16,
+      minHeight: size === 'large' ? responsiveHeight : 
+                 size === 'medium' ? responsiveHeight * 0.8 : 
+                 responsiveHeight * 0.7,
+      minWidth: size === 'large' ? Spacing.buttonMinWidth : 
+                size === 'medium' ? Spacing.buttonMinWidth * 0.8 : 
+                Spacing.buttonMinWidth * 0.7,
+      paddingHorizontal: size === 'large' ? Spacing.buttonPadding : 
+                         size === 'medium' ? Spacing.xl : Spacing.lg,
+      paddingVertical: size === 'large' ? Spacing.xl : 
+                       size === 'medium' ? Spacing.lg : Spacing.md,
+      borderRadius: size === 'large' ? Spacing.radiusXLarge : 
+                    size === 'medium' ? Spacing.radiusLarge : Spacing.radiusMedium,
       justifyContent: 'center',
       alignItems: 'center',
       flexDirection: 'row',
-      ...Shadows.lg,
     };
 
     if (fullWidth) {
@@ -45,9 +55,8 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
     if (disabled) {
       return {
         ...baseStyle,
-        backgroundColor: Colors.disabledButton,
-        shadowOpacity: 0,
-        elevation: 0,
+        backgroundColor: Colors.buttonDisabled,
+        ...Shadows.none,
       };
     }
 
@@ -55,25 +64,41 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       case 'primary':
         return {
           ...baseStyle,
-          backgroundColor: Colors.primaryButton,
+          backgroundColor: Colors.buttonPrimary,
+          ...Shadows.button,
         };
       case 'secondary':
         return {
           ...baseStyle,
-          backgroundColor: Colors.white,
-          borderWidth: 2,
-          borderColor: Colors.border,
-          ...Shadows.md,
+          backgroundColor: Colors.buttonSecondary,
+          borderWidth: 1,
+          borderColor: Colors.borderMedium,
+          ...Shadows.sm,
         };
       case 'danger':
         return {
           ...baseStyle,
-          backgroundColor: Colors.dangerRed,
+          backgroundColor: Colors.buttonDanger,
+          ...Shadows.button,
         };
       case 'success':
         return {
           ...baseStyle,
-          backgroundColor: Colors.safeGreen,
+          backgroundColor: Colors.buttonSuccess,
+          ...Shadows.button,
+        };
+      case 'premium':
+        return {
+          ...baseStyle,
+          backgroundColor: Colors.premium,
+          ...Shadows.premium,
+        };
+      case 'ghost':
+        return {
+          ...baseStyle,
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderColor: Colors.primary,
         };
       default:
         return baseStyle;
@@ -82,15 +107,16 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
 
   const getTextStyle = (): TextStyle => {
     const baseStyle: TextStyle = {
-      ...Typography.button,
+      ...(size === 'large' ? Typography.button : 
+          size === 'medium' ? Typography.callout : Typography.caption),
       textAlign: 'center',
-      fontWeight: '700',
+      fontWeight: '600',
     };
 
     if (disabled) {
       return {
         ...baseStyle,
-        color: Colors.white,
+        color: Colors.textTertiary,
       };
     }
 
@@ -98,14 +124,20 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       case 'primary':
       case 'danger':
       case 'success':
+      case 'premium':
         return {
           ...baseStyle,
-          color: Colors.white,
+          color: Colors.textInverse,
         };
       case 'secondary':
         return {
           ...baseStyle,
           color: Colors.textPrimary,
+        };
+      case 'ghost':
+        return {
+          ...baseStyle,
+          color: Colors.primary,
         };
       default:
         return baseStyle;
@@ -117,7 +149,9 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       style={getButtonStyle()}
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.8}
+      activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={title}
     >
       {icon && <View style={styles.iconContainer}>{icon}</View>}
       <Text style={getTextStyle()}>{title}</Text>

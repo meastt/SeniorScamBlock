@@ -9,18 +9,24 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Dimensions,
+  Keyboard,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SeniorButton } from '../components/SeniorButton';
+import { AnalyzingButton } from '../components/AnalyzingButton';
 import { useApp } from '../context/AppContext';
 import { analyzeMessage } from '../services/scamDetection';
-import { Colors, Shadows } from '../theme/colors';
+import { Colors, Shadows, Gradients } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
+import { Responsive } from '../theme/responsive';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 /**
- * Home Screen - Modern message checking interface
- * Supports shared content from Messages/Email apps
+ * Premium Home Screen - Sophisticated message checking interface
+ * Elegant design with clear hierarchy and premium feel
  */
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -65,20 +71,26 @@ const HomeScreen = () => {
       }
     }
 
-    setIsAnalyzing(true);
+    // Dismiss keyboard first to prevent double-tap issue
+    Keyboard.dismiss();
+    
+    // Small delay to ensure keyboard is dismissed
+    setTimeout(async () => {
+      setIsAnalyzing(true);
 
-    try {
-      const result = await analyzeMessage(textToCheck);
-      addAnalysis(result);
-      
-      // Navigate to result screen
-      navigation.navigate('Result' as never, { result } as never);
-      setMessageText(''); // Clear input
-    } catch (error) {
-      Alert.alert('Error', 'We could not check the message. Try again.', [{ text: 'OK' }]);
-    } finally {
-      setIsAnalyzing(false);
-    }
+      try {
+        const result = await analyzeMessage(textToCheck);
+        addAnalysis(result);
+        
+        // Navigate to result screen
+        navigation.navigate('Result' as never, { result } as never);
+        setMessageText(''); // Clear input
+      } catch (error) {
+        Alert.alert('Error', 'We could not check the message. Try again.', [{ text: 'OK' }]);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    }, 100);
   };
 
   const remainingChecks = subscription.tier === 'FREE' 
@@ -91,83 +103,108 @@ const HomeScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.emoji}>🛡️</Text>
-            <Text style={styles.title}>Scam Guard</Text>
-            <Text style={styles.subtitle}>Check any suspicious message</Text>
-          </View>
-          
-          {/* Checks remaining badge */}
-          {subscription.tier === 'FREE' && (
-            <View style={styles.limitBadge}>
-              <Text style={styles.limitEmoji}>✨</Text>
-              <Text style={styles.limitText}>
-                {remainingChecks} free check{remainingChecks !== 1 ? 's' : ''} remaining
-              </Text>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Hero Section with enhanced visual interest */}
+          <View style={styles.heroSection}>
+            <View style={styles.heroBackground} />
+            <View style={styles.heroIcon}>
+              <Text style={styles.heroEmoji}>🛡️</Text>
             </View>
-          )}
-
-          {/* Quick Start Instructions */}
-          <View style={styles.instructionCard}>
-            <Text style={styles.instructionTitle}>📱 How to Check a Message:</Text>
-            <View style={styles.instructionRow}>
-              <Text style={styles.instructionNumber}>1</Text>
-              <Text style={styles.instructionText}>
-                <Text style={styles.bold}>In Messages app:</Text>{'\n'}
-                Long-press suspicious message → Copy
-              </Text>
-            </View>
-            <View style={styles.instructionDivider} />
-            <View style={styles.instructionRow}>
-              <Text style={styles.instructionNumber}>2</Text>
-              <Text style={styles.instructionText}>
-                <Text style={styles.bold}>Come back here:</Text>{'\n'}
-                Paste message below and tap Check
-              </Text>
-            </View>
-          </View>
-
-          {/* Input Field */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Message to Check</Text>
-            <TextInput
-              style={styles.input}
-              multiline
-              numberOfLines={8}
-              placeholder="Paste suspicious message here...&#10;&#10;Tap and hold in this box, then tap Paste"
-              placeholderTextColor={Colors.textTertiary}
-              value={messageText}
-              onChangeText={setMessageText}
-              textAlignVertical="top"
-            />
-            <Text style={styles.helpText}>
-              💡 Tip: Share directly from Mail app using the Share button
+            <Text style={styles.heroTitle}>SeniorScam Block</Text>
+            <Text style={styles.heroSubtitle}>
+              AI-powered protection for your peace of mind
             </Text>
+            
+            {/* Status Badge */}
+            <View style={styles.statusBadge}>
+              <Text style={styles.statusIcon}>✨</Text>
+              <Text style={styles.statusText}>
+                {subscription.tier === 'PREMIUM' 
+                  ? 'Premium Protection Active' 
+                  : `${remainingChecks} free checks remaining`
+                }
+              </Text>
+            </View>
           </View>
 
-          {/* Check Button */}
-          <SeniorButton
-            title={isAnalyzing ? '🔍 Checking...' : '🔍 Check Message'}
-            onPress={() => handleCheckMessage()}
-            variant="primary"
-            fullWidth
-            disabled={isAnalyzing || !messageText.trim()}
-          />
+          {/* Main Action Card */}
+          <View style={styles.mainCard}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Check a Message</Text>
+              <Text style={styles.cardSubtitle}>
+                Paste any suspicious text, email, or message to analyze
+              </Text>
+            </View>
 
-          {/* Upgrade CTA */}
+            {/* Input Section */}
+            <View style={styles.inputSection}>
+              <TextInput
+                style={styles.messageInput}
+                multiline
+                numberOfLines={6}
+                placeholder="Paste your suspicious message here...&#10;&#10;💡 Tip: Long-press in Messages app to copy, then paste here"
+                placeholderTextColor={Colors.textTertiary}
+                value={messageText}
+                onChangeText={setMessageText}
+                textAlignVertical="top"
+              />
+              
+              <AnalyzingButton
+                isAnalyzing={isAnalyzing}
+                onPress={() => handleCheckMessage()}
+                disabled={!messageText.trim()}
+              />
+            </View>
+          </View>
+
+          {/* Quick Tips Card */}
+          <View style={styles.tipsCard}>
+            <Text style={styles.tipsTitle}>How to Check Messages</Text>
+            <View style={styles.tipsList}>
+              <View style={styles.tipItem}>
+                <View style={styles.tipNumber}>
+                  <Text style={styles.tipNumberText}>1</Text>
+                </View>
+                <Text style={styles.tipText}>
+                  <Text style={styles.tipBold}>Copy the message</Text> from your text or email app
+                </Text>
+              </View>
+              <View style={styles.tipItem}>
+                <View style={styles.tipNumber}>
+                  <Text style={styles.tipNumberText}>2</Text>
+                </View>
+                <Text style={styles.tipText}>
+                  <Text style={styles.tipBold}>Paste it above</Text> in the message box
+                </Text>
+              </View>
+              <View style={styles.tipItem}>
+                <View style={styles.tipNumber}>
+                  <Text style={styles.tipNumberText}>3</Text>
+                </View>
+                <Text style={styles.tipText}>
+                  <Text style={styles.tipBold}>Tap the blue button</Text> to check if it's safe
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Premium CTA */}
           {subscription.tier === 'FREE' && (
-            <View style={styles.upgradeCard}>
-              <Text style={styles.upgradeEmoji}>⭐</Text>
-              <Text style={styles.upgradeTitle}>Unlimited Protection</Text>
-              <Text style={styles.upgradeText}>
-                Get unlimited checks + family dashboard
+            <View style={styles.premiumCard}>
+              <View style={styles.premiumHeader}>
+                <Text style={styles.premiumIcon}>👑</Text>
+                <Text style={styles.premiumTitle}>Unlock Premium Protection</Text>
+              </View>
+              <Text style={styles.premiumDescription}>
+                Get unlimited checks, family alerts, and advanced scam detection
               </Text>
               <SeniorButton
                 title="Upgrade to Premium"
                 onPress={() => navigation.navigate('Upgrade' as never)}
-                variant="secondary"
+                variant="premium"
                 fullWidth
               />
             </View>
@@ -187,144 +224,204 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: Spacing.screenPadding,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Responsive.isTablet ? Spacing.massive : Spacing.enormous,
   },
-  header: {
+  
+  // Hero Section
+  heroSection: {
     alignItems: 'center',
-    marginBottom: Spacing.xl,
-    paddingTop: Spacing.md,
+    paddingHorizontal: Responsive.getScreenMargin(),
+    paddingTop: Responsive.isTablet ? Spacing.huge : Spacing.xxl,
+    paddingBottom: Spacing.xl,
+    backgroundColor: Colors.background,
+    position: 'relative',
+    overflow: 'hidden',
   },
-  emoji: {
-    fontSize: 64,
-    marginBottom: Spacing.sm,
+  heroBackground: {
+    position: 'absolute',
+    top: -50,
+    left: -50,
+    right: -50,
+    bottom: -50,
+    backgroundColor: Colors.primaryLight,
+    opacity: 0.1,
+    borderRadius: Spacing.radiusRound,
+    transform: [{ scale: 1.2 }],
   },
-  title: {
-    ...Typography.headline,
+  heroIcon: {
+    width: Responsive.isTablet ? 120 : 100,
+    height: Responsive.isTablet ? 120 : 100,
+    borderRadius: Spacing.radiusRound,
+    backgroundColor: Colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+    ...Shadows.lg,
+  },
+  heroEmoji: {
+    fontSize: Responsive.isTablet ? Spacing.iconEnormous : Spacing.iconMassive,
+  },
+  heroTitle: {
+    ...Typography.display,
     color: Colors.textPrimary,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.md,
     textAlign: 'center',
-    fontWeight: '800',
+    fontWeight: '700',
   },
-  subtitle: {
-    ...Typography.body,
+  heroSubtitle: {
+    ...Typography.bodyLarge,
     color: Colors.textSecondary,
     textAlign: 'center',
-  },
-  limitBadge: {
-    backgroundColor: Colors.cardBackground,
-    padding: Spacing.md,
-    borderRadius: 16,
     marginBottom: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+  },
+  statusBadge: {
+    backgroundColor: Colors.cardBackground,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: Spacing.radiusLarge,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    ...Shadows.sm,
+    ...Shadows.card,
   },
-  limitEmoji: {
-    fontSize: 24,
+  statusIcon: {
+    fontSize: Spacing.iconMedium,
     marginRight: Spacing.sm,
   },
-  limitText: {
-    ...Typography.body,
+  statusText: {
+    ...Typography.callout,
     color: Colors.textPrimary,
     fontWeight: '600',
   },
-  instructionCard: {
-    backgroundColor: Colors.cardBackground,
-    padding: Spacing.lg,
-    borderRadius: 20,
+
+  // Main Action Card
+  mainCard: {
+    marginHorizontal: Responsive.getScreenMargin(),
     marginBottom: Spacing.lg,
-    ...Shadows.md,
+    backgroundColor: Colors.cardBackground,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.cardPadding,
+    maxWidth: Responsive.getCardWidth(),
+    alignSelf: 'center',
+    width: '100%',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.card,
   },
-  instructionTitle: {
-    ...Typography.subheadline,
+  cardHeader: {
+    marginBottom: Spacing.lg,
+  },
+  cardTitle: {
+    ...Typography.title,
     color: Colors.textPrimary,
     marginBottom: Spacing.md,
     fontWeight: '700',
   },
-  instructionRow: {
+  cardSubtitle: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+    lineHeight: 24,
+  },
+  inputSection: {
+    gap: Spacing.lg,
+  },
+  messageInput: {
+    ...Typography.body,
+    backgroundColor: Colors.backgroundSecondary,
+    borderWidth: 2,
+    borderColor: Colors.border,
+    borderRadius: Spacing.radiusMedium,
+    padding: Spacing.md,
+    minHeight: 160,
+    color: Colors.textPrimary,
+    textAlignVertical: 'top',
+    ...Shadows.sm,
+  },
+
+  // Tips Card
+  tipsCard: {
+    marginHorizontal: Responsive.getScreenMargin(),
+    marginBottom: Spacing.lg,
+    backgroundColor: Colors.cardBackground,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.cardPadding,
+    maxWidth: Responsive.getCardWidth(),
+    alignSelf: 'center',
+    width: '100%',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.card,
+  },
+  tipsTitle: {
+    ...Typography.subtitle,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.lg,
+    fontWeight: '700',
+  },
+  tipsList: {
+    gap: Spacing.md,
+  },
+  tipItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
-  instructionNumber: {
-    ...Typography.subheadline,
-    color: Colors.white,
-    backgroundColor: Colors.primaryButton,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    textAlign: 'center',
-    lineHeight: 40,
+  tipNumber: {
+    width: 28,
+    height: 28,
+    borderRadius: Spacing.radiusRound,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: Spacing.md,
+  },
+  tipNumberText: {
+    ...Typography.caption,
+    color: Colors.textInverse,
     fontWeight: '700',
   },
-  instructionText: {
+  tipText: {
     ...Typography.body,
     color: Colors.textPrimary,
     flex: 1,
-    lineHeight: 28,
+    lineHeight: 22,
   },
-  instructionDivider: {
-    height: 1,
-    backgroundColor: Colors.border,
-    marginVertical: Spacing.md,
-    marginLeft: 56, // Align with text
-  },
-  bold: {
+  tipBold: {
     fontWeight: '700',
     color: Colors.textPrimary,
   },
-  inputContainer: {
-    marginBottom: Spacing.lg,
-  },
-  inputLabel: {
-    ...Typography.subheadline,
-    color: Colors.textPrimary,
-    marginBottom: Spacing.sm,
-    fontWeight: '600',
-  },
-  input: {
-    ...Typography.body,
-    backgroundColor: Colors.white,
+
+  // Premium Card
+  premiumCard: {
+    marginHorizontal: Responsive.getScreenMargin(),
+    backgroundColor: Colors.premiumLight,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.cardPadding,
     borderWidth: 2,
-    borderColor: Colors.border,
-    borderRadius: 16,
-    padding: Spacing.md,
-    minHeight: 180,
-    color: Colors.textPrimary,
-    ...Shadows.sm,
+    borderColor: Colors.premium,
+    maxWidth: Responsive.getCardWidth(),
+    alignSelf: 'center',
+    width: '100%',
+    ...Shadows.premium,
   },
-  helpText: {
-    ...Typography.body,
-    fontSize: 18,
-    color: Colors.textTertiary,
-    marginTop: Spacing.sm,
-    textAlign: 'center',
-  },
-  upgradeCard: {
-    marginTop: Spacing.xl,
-    padding: Spacing.lg,
-    backgroundColor: Colors.cardBackground,
-    borderRadius: 20,
+  premiumHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    ...Shadows.lg,
-  },
-  upgradeEmoji: {
-    fontSize: 48,
-    marginBottom: Spacing.sm,
-  },
-  upgradeTitle: {
-    ...Typography.subheadline,
-    color: Colors.textPrimary,
-    fontWeight: '700',
-    marginBottom: Spacing.xs,
-  },
-  upgradeText: {
-    ...Typography.body,
-    color: Colors.textSecondary,
-    textAlign: 'center',
     marginBottom: Spacing.md,
+  },
+  premiumIcon: {
+    fontSize: Spacing.iconLarge,
+    marginRight: Spacing.sm,
+  },
+  premiumTitle: {
+    ...Typography.subtitle,
+    color: Colors.premiumDark,
+    fontWeight: '700',
+  },
+  premiumDescription: {
+    ...Typography.body,
+    color: Colors.premiumDark,
+    marginBottom: Spacing.lg,
+    lineHeight: 22,
   },
 });
 

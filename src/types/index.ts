@@ -7,7 +7,7 @@ export interface ScamAnalysisResult {
   explanation: string;
   detailedExplanation?: string;
   scamType?: string;
-  timestamp: Date;
+  timestamp: string; // ISO string for navigation serialization
   messageContent: string;
 }
 
@@ -15,8 +15,8 @@ export interface UserSubscription {
   tier: 'FREE' | 'PREMIUM';
   messageCheckCount: number;
   monthlyLimit: number;
-  subscriptionDate?: Date;
-  expiryDate?: Date;
+  subscriptionDate?: string; // ISO string
+  expiryDate?: string; // ISO string
 }
 
 export interface FamilyMember {
@@ -28,7 +28,7 @@ export interface FamilyMember {
 
 export interface ScamAlert {
   id: string;
-  timestamp: Date;
+  timestamp: string; // ISO string
   riskLevel: ScamRiskLevel;
   blocked: boolean;
 }

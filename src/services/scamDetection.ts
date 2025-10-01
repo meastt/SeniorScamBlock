@@ -1,4 +1,5 @@
 import { ScamRiskLevel, ScamAnalysisResult } from '../types';
+import { ANTHROPIC_API_KEY } from '@env';
 
 /**
  * AI-powered scam detection service
@@ -58,8 +59,26 @@ const SCAM_PATTERNS: ScamPattern[] = [
   },
 ];
 
+/**
+ * Main scam detection function - uses Claude Sonnet 4.5 AI when available
+ * Falls back to rule-based detection if API key is not configured
+ */
 export const analyzeMessage = async (messageContent: string): Promise<ScamAnalysisResult> => {
-  // Simulate AI processing delay (< 3 seconds)
+  // Try AI-powered detection first (Claude Sonnet 4.5)
+  try {
+    return await analyzeMessageWithAI(messageContent);
+  } catch (error) {
+    console.warn('AI detection failed, falling back to rule-based detection:', error);
+    return await analyzeMessageRuleBased(messageContent);
+  }
+};
+
+/**
+ * Rule-based scam detection (fallback method)
+ * Uses pattern matching for basic scam detection
+ */
+export const analyzeMessageRuleBased = async (messageContent: string): Promise<ScamAnalysisResult> => {
+  // Simulate processing delay (< 3 seconds)
   await new Promise(resolve => setTimeout(resolve, 1500));
 
   const lowerContent = messageContent.toLowerCase();
@@ -125,16 +144,16 @@ export const analyzeMessage = async (messageContent: string): Promise<ScamAnalys
     explanation,
     detailedExplanation,
     scamType,
-    timestamp: new Date(),
+    timestamp: new Date().toISOString(), // Convert to string for navigation serialization
     messageContent,
   };
 };
 
 /**
- * AI-powered scam detection using Claude API
+ * AI-powered scam detection using Claude Sonnet 4.5 API
+ * Enhanced with latest model capabilities for superior scam detection
  */
 export const analyzeMessageWithAI = async (messageContent: string): Promise<ScamAnalysisResult> => {
-  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
   // Fallback to rule-based if no API key configured
   if (!ANTHROPIC_API_KEY) {
@@ -151,57 +170,89 @@ export const analyzeMessageWithAI = async (messageContent: string): Promise<Scam
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-3-5-20240620',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1024,
         messages: [
           {
             role: 'user',
-            content: `You are a scam detection expert for seniors aged 75+. Analyze this message and determine if it's a scam.
+            content: `You are an expert scam detection specialist with deep knowledge of fraud patterns targeting seniors aged 75+. Your role is to protect vulnerable elderly individuals from financial exploitation and identity theft.
 
-Message to analyze:
+TASK: Analyze the following message for scam indicators and provide a comprehensive assessment.
+
+MESSAGE TO ANALYZE:
 "${messageContent}"
 
-Respond with ONLY a JSON object in this exact format:
-{
-  "riskLevel": "RED" | "YELLOW" | "GREEN",
-  "scamType": "string (e.g., 'Grandparent Scam', 'Phishing', 'Romance Scam')",
-  "explanation": "string (max 12 words)",
-  "detailedExplanation": "string (2-3 sentences explaining why it's suspicious and what to do)"
-}
+ANALYSIS CRITERIA:
+1. Look for urgency tactics (immediate action required, limited time offers)
+2. Identify impersonation attempts (government agencies, family members, tech support)
+3. Detect requests for money, personal information, or account access
+4. Recognize social engineering techniques (emotional manipulation, authority pressure)
+5. Spot suspicious communication patterns (poor grammar, unusual requests)
+6. Consider context and plausibility of the request
 
-Risk levels:
-- RED: Definite scam (urgency tactics, requests for money/info, impersonation)
-- YELLOW: Suspicious signs (some red flags but not conclusive)
-- GREEN: Appears safe (but always remind to stay cautious)
+RESPOND WITH ONLY RAW JSON (no markdown, no code blocks, no additional text):
+{"riskLevel": "RED", "scamType": "Grandparent Scam", "explanation": "Family member needs money urgently", "detailedExplanation": "This is a classic grandparent scam. Never send money without verifying the person's identity first. Call your family member directly using a known phone number to confirm their safety."}
 
-Common scam types: Grandparent Scam, Government Impersonation, Phishing, Romance Scam, Lottery/Prize Scam, Tech Support Scam, Investment Scam`
+RISK LEVEL DEFINITIONS:
+- RED: Definite scam with clear malicious intent (immediate threat)
+- YELLOW: Suspicious indicators present (requires verification)
+- GREEN: Appears legitimate (but maintain general caution)
+
+COMMON SCAM CATEGORIES:
+- Grandparent Scam, Government Impersonation, Phishing, Romance Scam, Lottery/Prize Scam, Tech Support Scam, Investment Scam, Medicare/Health Insurance Scam, Charity Fraud, Sweepstakes Scam
+
+Focus on protecting seniors from financial harm and provide clear, actionable guidance.`
           }
         ]
       })
     });
 
     if (!response.ok) {
-      throw new Error(`Claude API error: ${response.status}`);
+      throw new Error(`Claude API error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
     const aiResponse = data.content[0].text;
 
-    // Parse Claude's JSON response
-    const parsed = JSON.parse(aiResponse);
+    // Parse Claude's JSON response with error handling
+    let parsed;
+    try {
+      // Clean the response - remove markdown code blocks if present
+      let cleanResponse = aiResponse.trim();
+      if (cleanResponse.startsWith('```json')) {
+        cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      } else if (cleanResponse.startsWith('```')) {
+        cleanResponse = cleanResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+      
+      parsed = JSON.parse(cleanResponse);
+    } catch (parseError) {
+      console.error('Failed to parse Claude response as JSON:', aiResponse);
+      throw new Error('Invalid JSON response from Claude API');
+    }
+
+    // Validate response structure
+    if (!parsed.riskLevel || !parsed.scamType || !parsed.explanation || !parsed.detailedExplanation) {
+      throw new Error('Incomplete response from Claude API');
+    }
+
+    // Ensure risk level is valid
+    if (!['RED', 'YELLOW', 'GREEN'].includes(parsed.riskLevel)) {
+      parsed.riskLevel = 'YELLOW'; // Default to caution
+    }
 
     return {
       id: Date.now().toString(),
-      riskLevel: parsed.riskLevel,
+      riskLevel: parsed.riskLevel as ScamRiskLevel,
       message: messageContent.substring(0, 200),
       explanation: parsed.explanation,
       detailedExplanation: parsed.detailedExplanation,
       scamType: parsed.scamType,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(), // Convert to string for navigation serialization
       messageContent,
     };
   } catch (error) {
-    console.error('Error calling Claude API:', error);
+    console.error('Error calling Claude Sonnet 4.5 API:', error);
     // Fallback to rule-based detection on error
     return analyzeMessage(messageContent);
   }
