@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text, StyleSheet } from 'react-native';
-import { Colors } from '../theme/colors';
+import { Colors, Shadows } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
 
@@ -117,13 +117,14 @@ const styles = StyleSheet.create({
     height: 100,
     paddingBottom: 16,
     paddingTop: 8,
-    borderTopWidth: 2,
-    borderTopColor: Colors.black,
+    borderTopWidth: 0,
     backgroundColor: Colors.white,
+    ...Shadows.lg,
   },
   tabLabel: {
     ...Typography.tab,
     marginTop: 4,
+    fontWeight: '600',
   },
   tabIcon: {
     fontSize: Spacing.iconMedium,

@@ -16,14 +16,28 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.scamguard.senior"
+      "bundleIdentifier": "com.scamguard.senior",
+      "associatedDomains": ["applinks:scamguard.app"],
+      "infoPlist": {
+        "NSUserActivityTypes": ["INSendMessageIntent"],
+        "UISupportsDocumentBrowser": true
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.scamguard.senior"
+      "package": "com.scamguard.senior",
+      "intentFilters": [
+        {
+          "action": "SEND",
+          "category": ["DEFAULT"],
+          "data": {
+            "mimeType": "text/plain"
+          }
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

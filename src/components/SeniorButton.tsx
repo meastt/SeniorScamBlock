@@ -1,21 +1,21 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View } from 'react-native';
-import { Colors } from '../theme/colors';
+import { Colors, Shadows } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
 
 interface SeniorButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger' | 'success';
   disabled?: boolean;
   icon?: React.ReactNode;
   fullWidth?: boolean;
 }
 
 /**
- * Large, high-contrast button designed for seniors
- * Minimum 88pt height for easy tapping
+ * Modern, large button designed for seniors
+ * Beautiful shadows, vibrant colors, minimum 88pt height for easy tapping
  */
 export const SeniorButton: React.FC<SeniorButtonProps> = ({
   title,
@@ -31,11 +31,11 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       minWidth: Spacing.buttonMinWidth,
       paddingHorizontal: Spacing.lg,
       paddingVertical: Spacing.md,
-      borderRadius: 8,
-      borderWidth: 3,
+      borderRadius: 16,
       justifyContent: 'center',
       alignItems: 'center',
       flexDirection: 'row',
+      ...Shadows.lg,
     };
 
     if (fullWidth) {
@@ -46,7 +46,8 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       return {
         ...baseStyle,
         backgroundColor: Colors.disabledButton,
-        borderColor: Colors.disabledButton,
+        shadowOpacity: 0,
+        elevation: 0,
       };
     }
 
@@ -55,19 +56,24 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
         return {
           ...baseStyle,
           backgroundColor: Colors.primaryButton,
-          borderColor: Colors.black,
         };
       case 'secondary':
         return {
           ...baseStyle,
           backgroundColor: Colors.white,
-          borderColor: Colors.black,
+          borderWidth: 2,
+          borderColor: Colors.border,
+          ...Shadows.md,
         };
       case 'danger':
         return {
           ...baseStyle,
           backgroundColor: Colors.dangerRed,
-          borderColor: Colors.black,
+        };
+      case 'success':
+        return {
+          ...baseStyle,
+          backgroundColor: Colors.safeGreen,
         };
       default:
         return baseStyle;
@@ -78,6 +84,7 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
     const baseStyle: TextStyle = {
       ...Typography.button,
       textAlign: 'center',
+      fontWeight: '700',
     };
 
     if (disabled) {
@@ -90,6 +97,7 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
     switch (variant) {
       case 'primary':
       case 'danger':
+      case 'success':
         return {
           ...baseStyle,
           color: Colors.white,
@@ -97,7 +105,7 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       case 'secondary':
         return {
           ...baseStyle,
-          color: Colors.black,
+          color: Colors.textPrimary,
         };
       default:
         return baseStyle;
@@ -109,7 +117,7 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       style={getButtonStyle()}
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
       {icon && <View style={styles.iconContainer}>{icon}</View>}
       <Text style={getTextStyle()}>{title}</Text>

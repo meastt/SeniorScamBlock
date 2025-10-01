@@ -131,32 +131,78 @@ export const analyzeMessage = async (messageContent: string): Promise<ScamAnalys
 };
 
 /**
- * Simulated API call for production use
- * In real app, this would call OpenAI or custom model
+ * AI-powered scam detection using Claude API
  */
 export const analyzeMessageWithAI = async (messageContent: string): Promise<ScamAnalysisResult> => {
-  // This would integrate with OpenAI API in production:
-  // const response = await fetch('https://api.openai.com/v1/chat/completions', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Authorization': `Bearer ${API_KEY}`,
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({
-  //     model: 'gpt-4',
-  //     messages: [
-  //       {
-  //         role: 'system',
-  //         content: 'You are a scam detection expert for seniors...'
-  //       },
-  //       {
-  //         role: 'user',
-  //         content: messageContent
-  //       }
-  //     ]
-  //   })
-  // });
-  
-  // For now, use rule-based detection
-  return analyzeMessage(messageContent);
+  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+
+  // Fallback to rule-based if no API key configured
+  if (!ANTHROPIC_API_KEY) {
+    console.warn('No Anthropic API key found. Using rule-based detection.');
+    return analyzeMessage(messageContent);
+  }
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-3-5-20240620',
+        max_tokens: 1024,
+        messages: [
+          {
+            role: 'user',
+            content: `You are a scam detection expert for seniors aged 75+. Analyze this message and determine if it's a scam.
+
+Message to analyze:
+"${messageContent}"
+
+Respond with ONLY a JSON object in this exact format:
+{
+  "riskLevel": "RED" | "YELLOW" | "GREEN",
+  "scamType": "string (e.g., 'Grandparent Scam', 'Phishing', 'Romance Scam')",
+  "explanation": "string (max 12 words)",
+  "detailedExplanation": "string (2-3 sentences explaining why it's suspicious and what to do)"
+}
+
+Risk levels:
+- RED: Definite scam (urgency tactics, requests for money/info, impersonation)
+- YELLOW: Suspicious signs (some red flags but not conclusive)
+- GREEN: Appears safe (but always remind to stay cautious)
+
+Common scam types: Grandparent Scam, Government Impersonation, Phishing, Romance Scam, Lottery/Prize Scam, Tech Support Scam, Investment Scam`
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Claude API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const aiResponse = data.content[0].text;
+
+    // Parse Claude's JSON response
+    const parsed = JSON.parse(aiResponse);
+
+    return {
+      id: Date.now().toString(),
+      riskLevel: parsed.riskLevel,
+      message: messageContent.substring(0, 200),
+      explanation: parsed.explanation,
+      detailedExplanation: parsed.detailedExplanation,
+      scamType: parsed.scamType,
+      timestamp: new Date(),
+      messageContent,
+    };
+  } catch (error) {
+    console.error('Error calling Claude API:', error);
+    // Fallback to rule-based detection on error
+    return analyzeMessage(messageContent);
+  }
 };
