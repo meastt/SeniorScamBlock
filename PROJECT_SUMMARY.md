@@ -435,6 +435,8 @@ Use sample messages from `TEST_SCENARIOS.md` to test scam detection.
 
 ### Support Channels (Planned)
 - Email: support@eldersentry.com
+- Website: https://eldersentry.com
+- Support Portal: https://eldersentry.com/support
 - Phone: 1-800-XXX-XXXX (recommended for seniors)
 - In-app help center
 - Emergency contacts (FTC, Elder Abuse Hotline)

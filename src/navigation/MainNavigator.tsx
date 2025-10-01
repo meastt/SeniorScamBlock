@@ -8,7 +8,7 @@ import { Spacing } from '../theme/spacing';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
-import RecentScreen from '../screens/RecentScreen';
+import TipsScreen from '../screens/TipsScreen';
 import HelpScreen from '../screens/HelpScreen';
 import ResultScreen from '../screens/ResultScreen';
 import UpgradeScreen from '../screens/UpgradeScreen';
@@ -32,13 +32,12 @@ const HomeStack = () => {
 };
 
 /**
- * Recent Stack Navigator
+ * Tips Stack Navigator
  */
-const RecentStack = () => {
+const TipsStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="RecentMain" component={RecentScreen} />
-      <Stack.Screen name="Result" component={ResultScreen} />
+      <Stack.Screen name="TipsMain" component={TipsScreen} />
     </Stack.Navigator>
   );
 };
@@ -57,7 +56,7 @@ const HelpStack = () => {
 
 /**
  * Main Tab Navigator
- * Simple 3-tab navigation: Home / Recent / Help
+ * Simple 3-tab navigation: Home / Tips / Help
  * Large text, high contrast, tap-only interaction
  */
 const MainNavigator = () => {
@@ -85,14 +84,14 @@ const MainNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Recent"
-        component={RecentStack}
+        name="Tips"
+        component={TipsStack}
         options={{
           tabBarLabel: ({ focused, color }) => (
-            <Text style={[styles.tabLabel, { color }]}>Recent</Text>
+            <Text style={[styles.tabLabel, { color }]}>Tips</Text>
           ),
           tabBarIcon: ({ focused, color }) => (
-            <Text style={[styles.tabIcon, { color }]}>📋</Text>
+            <Text style={[styles.tabIcon, { color }]}>💡</Text>
           ),
         }}
       />
@@ -104,7 +103,7 @@ const MainNavigator = () => {
             <Text style={[styles.tabLabel, { color }]}>Help</Text>
           ),
           tabBarIcon: ({ focused, color }) => (
-            <Text style={[styles.tabIcon, { color }]}>❓</Text>
+            <Text style={[styles.tabIcon, { color }]}>🆘</Text>
           ),
         }}
       />

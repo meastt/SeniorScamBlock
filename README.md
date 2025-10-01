@@ -213,13 +213,20 @@ Adult children can:
 
 ## Support Resources
 
+### Elder Sentry Support
+- 📧 Email: support@eldersentry.com
+- 🌐 Website: https://eldersentry.com
+- 📱 Support Portal: https://eldersentry.com/support
+
 ### Emergency Contacts (Built-in)
 - FTC Fraud Reporting: 1-877-382-4357
 - Elder Abuse Hotline: 1-800-677-1116
 
 ## License
 
-Copyright © 2025. All rights reserved.
+Copyright © 2025 Elder Sentry. All rights reserved.
+
+For more information, visit https://eldersentry.com
 
 ## Contributing
 

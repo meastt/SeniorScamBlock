@@ -236,8 +236,8 @@ await SecureStore.setItemAsync('user_data', encryptedData);
 
 #### iOS Requirements
 - [ ] Age rating: 4+ (no objectionable content)
-- [ ] Privacy policy URL
-- [ ] Support URL
+- [ ] Privacy policy URL: https://eldersentry.com/privacy
+- [ ] Support URL: https://eldersentry.com/support
 - [ ] Screenshot requirements:
   - 6.7" iPhone (3 screenshots minimum)
   - Show: Home screen, Result screen, Help screen
@@ -246,7 +246,7 @@ await SecureStore.setItemAsync('user_data', encryptedData);
 
 #### Android Requirements
 - [ ] Content rating questionnaire
-- [ ] Privacy policy
+- [ ] Privacy policy: https://eldersentry.com/privacy
 - [ ] Feature graphic (1024x500)
 - [ ] Screenshots (minimum 2)
 - [ ] Store listing
@@ -263,9 +263,12 @@ await SecureStore.setItemAsync('user_data', encryptedData);
 - Adult day care programs
 - Church/community groups
 - Family caregiver forums
+- Website: https://eldersentry.com
 
 #### App Store Optimization (ASO)
 **Keywords**: scam protection, fraud alert, senior safety, phone scam, email scam, grandparent scam
+**Website**: https://eldersentry.com
+**Support**: support@eldersentry.com
 
 ### 10. Analytics & Monitoring
 
@@ -376,11 +379,11 @@ await SecureStore.setItemAsync('user_data', encryptedData);
 ## Legal Requirements
 
 ### Required Documents
-- [ ] Privacy Policy
-- [ ] Terms of Service
-- [ ] Subscription Terms
+- [ ] Privacy Policy (host at eldersentry.com/privacy)
+- [ ] Terms of Service (host at eldersentry.com/terms)
+- [ ] Subscription Terms (host at eldersentry.com/subscription-terms)
 - [ ] Data Processing Agreement (for family dashboard)
-- [ ] Cookie Policy (if using web)
+- [ ] Cookie Policy (if using web - eldersentry.com/cookies)
 
 ### Compliance
 - [ ] COPPA (if under 13 can use)
