@@ -114,12 +114,14 @@ const ResultScreen = () => {
         {result.detailedExplanation && (
           <>
             {!showDetails ? (
-              <SeniorButton
-                title="📋 See Detailed Analysis"
-                onPress={() => setShowDetails(true)}
-                variant="secondary"
-                fullWidth
-              />
+              <View style={styles.detailsButtonContainer}>
+                <SeniorButton
+                  title="📋 See Detailed Analysis"
+                  onPress={() => setShowDetails(true)}
+                  variant="secondary"
+                  fullWidth
+                />
+              </View>
             ) : (
               <View style={styles.detailsCard}>
                 <Text style={styles.detailsTitle}>Detailed Analysis</Text>
@@ -247,6 +249,12 @@ const styles = StyleSheet.create({
   urgentActionStepText: {
     color: Colors.error,
     fontWeight: '600',
+  },
+
+  // Details Button Container
+  detailsButtonContainer: {
+    marginHorizontal: Spacing.screenHorizontal,
+    marginBottom: Spacing.xl,
   },
 
   // Details Card
