@@ -1,5 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
+import TesseractOcr from 'react-native-tesseract-ocr';
 
 /**
  * Screenshot Analysis Service
@@ -133,19 +134,43 @@ export const showScreenshotOptions = (): Promise<'camera' | 'library' | 'cancel'
 };
 
 /**
- * Process screenshot analysis
- * This would integrate with OCR and AI analysis
- * For now, returns a placeholder result
+ * Process screenshot analysis with OCR
+ * Extracts text from images and analyzes for scams
  */
 export const analyzeScreenshot = async (imageUri: string): Promise<any> => {
-  // TODO: Implement OCR to extract text from image
-  // TODO: Integrate with AI analysis service
-  // For now, return a placeholder
-  
-  return {
-    success: true,
-    extractedText: 'Screenshot analysis coming soon! This feature will automatically read text from your photos and analyze it for scams.',
-    imageUri,
-  };
+  try {
+    console.log('Starting OCR analysis for:', imageUri);
+    
+    // Extract text using OCR
+    const extractedText = await TesseractOcr.recognize(imageUri, 'LANG_ENGLISH', {
+      logger: (m) => console.log('OCR Progress:', m),
+    });
+    
+    console.log('OCR extracted text:', extractedText);
+    
+    if (!extractedText || extractedText.trim().length === 0) {
+      return {
+        success: false,
+        extractedText: '',
+        imageUri,
+        error: 'No text could be read from the image. Please try with a clearer photo.',
+      };
+    }
+    
+    return {
+      success: true,
+      extractedText: extractedText.trim(),
+      imageUri,
+      confidence: 'high', // Could be enhanced with confidence scores
+    };
+  } catch (error) {
+    console.error('OCR analysis error:', error);
+    return {
+      success: false,
+      extractedText: '',
+      imageUri,
+      error: 'Could not read text from the image. Please try again with a clearer photo.',
+    };
+  }
 };
 

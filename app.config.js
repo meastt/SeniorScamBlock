@@ -33,6 +33,8 @@ export default {
         UISupportsDocumentBrowser: true,
         NSPhotoLibraryUsageDescription: "Elder Sentry needs access to save screenshots of scam analysis for your records.",
         NSCameraUsageDescription: "Elder Sentry needs camera access to scan suspicious messages or documents.",
+        NSMicrophoneUsageDescription: "Elder Sentry needs microphone access for voice input to check suspicious messages.",
+        NSSpeechRecognitionUsageDescription: "Elder Sentry uses speech recognition to convert your voice to text for scam analysis.",
         NSUserTrackingUsageDescription: "We use analytics to improve Elder Sentry and provide better scam protection. Your data is never shared.",
         ITSAppUsesNonExemptEncryption: false,
         CFBundleURLTypes: [

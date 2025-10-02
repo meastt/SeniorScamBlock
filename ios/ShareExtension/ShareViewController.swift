@@ -27,6 +27,41 @@ class ShareViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    // Set up a more user-friendly UI for seniors
+    setupSeniorFriendlyUI()
+  }
+  
+  private func setupSeniorFriendlyUI() {
+    // Add a simple loading indicator
+    let loadingLabel = UILabel()
+    loadingLabel.text = "🛡️ Elder Sentry is analyzing your message..."
+    loadingLabel.textAlignment = .center
+    loadingLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+    loadingLabel.textColor = UIColor.label
+    loadingLabel.numberOfLines = 0
+    loadingLabel.translatesAutoresizingMaskIntoConstraints = false
+    
+    view.addSubview(loadingLabel)
+    
+    NSLayoutConstraint.activate([
+      loadingLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+      loadingLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+      loadingLabel.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 20),
+      loadingLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -20)
+    ])
+    
+    // Add a simple progress indicator
+    let activityIndicator = UIActivityIndicatorView(style: .large)
+    activityIndicator.startAnimating()
+    activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+    
+    view.addSubview(activityIndicator)
+    
+    NSLayoutConstraint.activate([
+      activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+      activityIndicator.topAnchor.constraint(equalTo: loadingLabel.bottomAnchor, constant: 20)
+    ])
   }
 
   override func viewDidAppear(_ animated: Bool) {

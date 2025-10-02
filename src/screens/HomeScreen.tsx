@@ -15,10 +15,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SeniorButton } from '../components/SeniorButton';
 import { AnalyzingButton } from '../components/AnalyzingButton';
+import { ScreenshotAnalysisModal } from '../components/ScreenshotAnalysisModal';
 import { useApp } from '../context/AppContext';
 import { analyzeMessage } from '../services/scamDetection';
 import { useShareIntentHandler, processSharedContent, SharedContent } from '../services/shareIntent';
 import { showScreenshotOptions, pickScreenshotForAnalysis, takePhotoForAnalysis, analyzeScreenshot } from '../services/screenshotAnalysis';
+import { showVoiceInputOptions, startVoiceRecognition, stopVoiceRecognition, VoiceResult } from '../services/voiceInput';
+import { initializeAutoScreenshotDetection, startScreenshotMonitoring, showScreenshotAnalysisPrompt, analyzeScreenshotAutomatically } from '../services/autoScreenshotDetection';
+import { initializeSiriShortcuts, handleSiriShortcut } from '../services/siriShortcuts';
 import { Colors, Shadows } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
@@ -36,6 +40,11 @@ const HomeScreen = () => {
   const { subscription, addAnalysis } = useApp();
   const [messageText, setMessageText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [screenshotModalVisible, setScreenshotModalVisible] = useState(false);
+  const [currentScreenshotUri, setCurrentScreenshotUri] = useState<string | null>(null);
+  const [extractedText, setExtractedText] = useState('');
+  const [isAnalyzingScreenshot, setIsAnalyzingScreenshot] = useState(false);
 
   // Handle shared text from other apps
   useEffect(() => {
@@ -73,6 +82,51 @@ const HomeScreen = () => {
 
   // Use the share intent hook
   useShareIntentHandler(handleSharedContent);
+
+  // Initialize auto screenshot detection
+  useEffect(() => {
+    const initializeAutoDetection = async () => {
+      await initializeAutoScreenshotDetection();
+      
+      // Start monitoring for new screenshots
+      const cleanup = startScreenshotMonitoring(
+        (screenshotUri: string) => {
+          showScreenshotAnalysisPrompt(
+            screenshotUri,
+            async (uri: string) => {
+              setIsAnalyzing(true);
+              try {
+                await analyzeScreenshotAutomatically(
+                  uri,
+                  (result: any) => {
+                    addAnalysis(result);
+                    (navigation as any).navigate('Result', { result });
+                  },
+                  (error: string) => {
+                    Alert.alert('Analysis Error', error);
+                  }
+                );
+              } finally {
+                setIsAnalyzing(false);
+              }
+            },
+            () => {
+              // User dismissed the prompt
+              console.log('Screenshot analysis dismissed');
+            }
+          );
+        },
+        { enabled: true, autoAnalyze: false, showNotification: true }
+      );
+
+      return cleanup;
+    };
+
+    initializeAutoDetection();
+    
+    // Initialize Siri Shortcuts
+    initializeSiriShortcuts();
+  }, []);
 
   const handleCheckMessage = async (text?: string) => {
     const textToCheck = text || messageText;
@@ -128,8 +182,6 @@ const HomeScreen = () => {
       
       if (option === 'cancel') return;
       
-      setIsAnalyzing(true);
-      
       let imageUri: string | null = null;
       
       if (option === 'camera') {
@@ -139,25 +191,87 @@ const HomeScreen = () => {
       }
       
       if (imageUri) {
-        // Analyze the screenshot
+        setCurrentScreenshotUri(imageUri);
+        setExtractedText('');
+        setScreenshotModalVisible(true);
+        
+        // Start analyzing the screenshot
+        setIsAnalyzingScreenshot(true);
         const analysis = await analyzeScreenshot(imageUri);
+        setIsAnalyzingScreenshot(false);
         
         if (analysis.success && analysis.extractedText) {
-          // Analyze the extracted text
-          const result = await analyzeMessage(analysis.extractedText);
-          addAnalysis(result);
-          
-          // Navigate to result screen
-          (navigation as any).navigate('Result', { result });
+          setExtractedText(analysis.extractedText);
         } else {
-          Alert.alert('Error', 'Could not read text from the image. Please try again with a clearer photo.');
+          setExtractedText('');
+          Alert.alert('Text Extraction Failed', analysis.error || 'Could not read text from the image.');
         }
       }
     } catch (error) {
       console.error('Screenshot analysis error:', error);
       Alert.alert('Error', 'Could not analyze the screenshot. Please try again.');
+      setScreenshotModalVisible(false);
+    }
+  };
+
+  const handleScreenshotAnalyze = async () => {
+    if (!extractedText.trim()) return;
+    
+    setIsAnalyzing(true);
+    try {
+      const result = await analyzeMessage(extractedText);
+      addAnalysis(result);
+      setScreenshotModalVisible(false);
+      (navigation as any).navigate('Result', { result });
+    } catch (error) {
+      Alert.alert('Error', 'Could not analyze the text. Please try again.');
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleScreenshotRetake = () => {
+    setScreenshotModalVisible(false);
+    handleScreenshotAnalysis();
+  };
+
+  const handleVoiceInput = async () => {
+    try {
+      const option = await showVoiceInputOptions();
+      
+      if (option === 'cancel') return;
+      
+      if (option === 'voice') {
+        setIsListening(true);
+        
+        await startVoiceRecognition(
+          (result: VoiceResult) => {
+            setIsListening(false);
+            
+            if (result.success && result.text) {
+              setMessageText(result.text);
+              Alert.alert(
+                'Voice Input Complete',
+                `I heard: "${result.text}"\n\nWould you like to check this message for scams?`,
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Check Message', onPress: () => handleCheckMessage(result.text) }
+                ]
+              );
+            } else {
+              Alert.alert('Voice Input Failed', result.error || 'Could not understand what you said. Please try again.');
+            }
+          },
+          (error: string) => {
+            setIsListening(false);
+            Alert.alert('Voice Input Error', error);
+          }
+        );
+      }
+    } catch (error) {
+      console.error('Voice input error:', error);
+      setIsListening(false);
+      Alert.alert('Error', 'Could not start voice input. Please try again.');
     }
   };
 
@@ -226,13 +340,23 @@ const HomeScreen = () => {
                 disabled={!messageText.trim()}
               />
               
+              {/* Voice Input Button */}
+              <View style={styles.voiceButton}>
+                <SeniorButton
+                  title={isListening ? "🎤 Listening..." : "🎤 Speak Message"}
+                  onPress={handleVoiceInput}
+                  variant="secondary"
+                  disabled={isAnalyzing || isListening}
+                />
+              </View>
+              
               {/* Screenshot Analysis Button */}
               <View style={styles.screenshotButton}>
                 <SeniorButton
                   title="📸 Analyze Screenshot"
                   onPress={handleScreenshotAnalysis}
                   variant="secondary"
-                  disabled={isAnalyzing}
+                  disabled={isAnalyzing || isListening}
                 />
               </View>
             </View>
@@ -272,6 +396,7 @@ const HomeScreen = () => {
             <View style={styles.alternativeMethod}>
               <Text style={styles.alternativeTitle}>Other ways to check:</Text>
               <View style={styles.alternativeSteps}>
+                <Text style={styles.alternativeStep}>• 🎤 Tap "Speak Message" and say the suspicious text out loud</Text>
                 <Text style={styles.alternativeStep}>• 📸 Take a screenshot and tap "Analyze Screenshot"</Text>
                 <Text style={styles.alternativeStep}>• Copy message → Paste above → Tap blue button</Text>
               </View>
@@ -298,6 +423,17 @@ const HomeScreen = () => {
           )}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Screenshot Analysis Modal */}
+      <ScreenshotAnalysisModal
+        visible={screenshotModalVisible}
+        imageUri={currentScreenshotUri}
+        extractedText={extractedText}
+        isAnalyzing={isAnalyzingScreenshot}
+        onClose={() => setScreenshotModalVisible(false)}
+        onAnalyze={handleScreenshotAnalyze}
+        onRetake={handleScreenshotRetake}
+      />
     </SafeAreaView>
   );
 };
@@ -407,6 +543,9 @@ const styles = StyleSheet.create({
     minHeight: 120,
     color: Colors.textPrimary,
     textAlignVertical: 'top',
+  },
+  voiceButton: {
+    marginTop: Spacing.sm,
   },
   screenshotButton: {
     marginTop: Spacing.sm,
