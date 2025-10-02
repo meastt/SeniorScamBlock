@@ -1,5 +1,5 @@
 import { ScamRiskLevel, ScamAnalysisResult } from '../types';
-import { ANTHROPIC_API_KEY } from '@env';
+import Constants from 'expo-constants';
 
 /**
  * AI-powered scam detection service
@@ -154,6 +154,8 @@ export const analyzeMessageRuleBased = async (messageContent: string): Promise<S
  * Enhanced with latest model capabilities for superior scam detection
  */
 export const analyzeMessageWithAI = async (messageContent: string): Promise<ScamAnalysisResult> => {
+  // Get API key from expo-constants (injected from EAS secrets)
+  const ANTHROPIC_API_KEY = Constants.expoConfig?.extra?.anthropicApiKey;
 
   // Fallback to rule-based if no API key configured
   if (!ANTHROPIC_API_KEY) {
