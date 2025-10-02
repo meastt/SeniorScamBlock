@@ -17,7 +17,9 @@ import { SeniorButton } from '../components/SeniorButton';
 import { AnalyzingButton } from '../components/AnalyzingButton';
 import { useApp } from '../context/AppContext';
 import { analyzeMessage } from '../services/scamDetection';
-import { Colors, Shadows, Gradients } from '../theme/colors';
+import { useShareIntentHandler, processSharedContent, SharedContent } from '../services/shareIntent';
+import { showScreenshotOptions, pickScreenshotForAnalysis, takePhotoForAnalysis, analyzeScreenshot } from '../services/screenshotAnalysis';
+import { Colors, Shadows } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
 import { Responsive } from '../theme/responsive';
@@ -44,6 +46,33 @@ const HomeScreen = () => {
       handleCheckMessage(params.sharedText);
     }
   }, [route.params]);
+
+  // Handle share intent using the hook
+  const handleSharedContent = async (sharedContent: SharedContent) => {
+    console.log('Received shared content:', sharedContent);
+    
+    // Show a brief confirmation
+    Alert.alert(
+      'Message Received',
+      `Received content from ${sharedContent.sourceApp}. Analyzing for scams...`,
+      [{ text: 'OK' }]
+    );
+    
+    try {
+      // Process the shared content
+      const result = await processSharedContent(sharedContent);
+      addAnalysis(result);
+      
+      // Navigate to result screen
+      (navigation as any).navigate('Result', { result });
+    } catch (error) {
+      console.error('Error processing shared content:', error);
+      Alert.alert('Error', 'Could not analyze the shared content. Please try again.', [{ text: 'OK' }]);
+    }
+  };
+
+  // Use the share intent hook
+  useShareIntentHandler(handleSharedContent);
 
   const handleCheckMessage = async (text?: string) => {
     const textToCheck = text || messageText;
@@ -83,7 +112,7 @@ const HomeScreen = () => {
         addAnalysis(result);
         
         // Navigate to result screen
-        navigation.navigate('Result' as never, { result } as never);
+        (navigation as any).navigate('Result', { result });
         setMessageText(''); // Clear input
       } catch (error) {
         Alert.alert('Error', 'We could not check the message. Try again.', [{ text: 'OK' }]);
@@ -91,6 +120,45 @@ const HomeScreen = () => {
         setIsAnalyzing(false);
       }
     }, 100);
+  };
+
+  const handleScreenshotAnalysis = async () => {
+    try {
+      const option = await showScreenshotOptions();
+      
+      if (option === 'cancel') return;
+      
+      setIsAnalyzing(true);
+      
+      let imageUri: string | null = null;
+      
+      if (option === 'camera') {
+        imageUri = await takePhotoForAnalysis();
+      } else if (option === 'library') {
+        imageUri = await pickScreenshotForAnalysis();
+      }
+      
+      if (imageUri) {
+        // Analyze the screenshot
+        const analysis = await analyzeScreenshot(imageUri);
+        
+        if (analysis.success && analysis.extractedText) {
+          // Analyze the extracted text
+          const result = await analyzeMessage(analysis.extractedText);
+          addAnalysis(result);
+          
+          // Navigate to result screen
+          (navigation as any).navigate('Result', { result });
+        } else {
+          Alert.alert('Error', 'Could not read text from the image. Please try again with a clearer photo.');
+        }
+      }
+    } catch (error) {
+      console.error('Screenshot analysis error:', error);
+      Alert.alert('Error', 'Could not analyze the screenshot. Please try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const remainingChecks = subscription.tier === 'FREE' 
@@ -145,7 +213,7 @@ const HomeScreen = () => {
                 style={styles.messageInput}
                 multiline
                 numberOfLines={6}
-                placeholder="Paste your suspicious message here...&#10;&#10;💡 Tip: Long-press in Messages app to copy, then paste here"
+                placeholder="Paste your suspicious message here...&#10;&#10;💡 Tip: Use Share Sheet for easier checking!"
                 placeholderTextColor={Colors.textTertiary}
                 value={messageText}
                 onChangeText={setMessageText}
@@ -157,6 +225,16 @@ const HomeScreen = () => {
                 onPress={() => handleCheckMessage()}
                 disabled={!messageText.trim()}
               />
+              
+              {/* Screenshot Analysis Button */}
+              <View style={styles.screenshotButton}>
+                <SeniorButton
+                  title="📸 Analyze Screenshot"
+                  onPress={handleScreenshotAnalysis}
+                  variant="secondary"
+                  disabled={isAnalyzing}
+                />
+              </View>
             </View>
           </View>
 
@@ -169,7 +247,7 @@ const HomeScreen = () => {
                   <Text style={styles.tipNumberText}>1</Text>
                 </View>
                 <Text style={styles.tipText}>
-                  <Text style={styles.tipBold}>Copy the message</Text> from your text or email app
+                  <Text style={styles.tipBold}>Long-press the message</Text> in Messages or Mail app
                 </Text>
               </View>
               <View style={styles.tipItem}>
@@ -177,7 +255,7 @@ const HomeScreen = () => {
                   <Text style={styles.tipNumberText}>2</Text>
                 </View>
                 <Text style={styles.tipText}>
-                  <Text style={styles.tipBold}>Paste it above</Text> in the message box
+                  <Text style={styles.tipBold}>Tap "Share"</Text> and select "Elder Sentry"
                 </Text>
               </View>
               <View style={styles.tipItem}>
@@ -185,8 +263,17 @@ const HomeScreen = () => {
                   <Text style={styles.tipNumberText}>3</Text>
                 </View>
                 <Text style={styles.tipText}>
-                  <Text style={styles.tipBold}>Tap the blue button</Text> to check if it's safe
+                  <Text style={styles.tipBold}>Automatic analysis</Text> - no copying needed!
                 </Text>
+              </View>
+            </View>
+            
+            {/* Alternative methods */}
+            <View style={styles.alternativeMethod}>
+              <Text style={styles.alternativeTitle}>Other ways to check:</Text>
+              <View style={styles.alternativeSteps}>
+                <Text style={styles.alternativeStep}>• 📸 Take a screenshot and tap "Analyze Screenshot"</Text>
+                <Text style={styles.alternativeStep}>• Copy message → Paste above → Tap blue button</Text>
               </View>
             </View>
           </View>
@@ -321,6 +408,9 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     textAlignVertical: 'top',
   },
+  screenshotButton: {
+    marginTop: Spacing.sm,
+  },
 
   // Tips Card
   tipsCard: {
@@ -369,6 +459,28 @@ const styles = StyleSheet.create({
   tipBold: {
     fontWeight: '700',
     color: Colors.textPrimary,
+  },
+
+  // Alternative Method
+  alternativeMethod: {
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  alternativeTitle: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+    marginBottom: Spacing.xs,
+  },
+  alternativeSteps: {
+    gap: Spacing.xs,
+  },
+  alternativeStep: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    fontStyle: 'italic',
   },
 
   // Premium Card

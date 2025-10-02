@@ -2,6 +2,7 @@ export default {
   expo: {
     name: "Elder Sentry",
     slug: "elder-sentry",
+    scheme: "eldersentry",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
@@ -33,7 +34,13 @@ export default {
         NSPhotoLibraryUsageDescription: "Elder Sentry needs access to save screenshots of scam analysis for your records.",
         NSCameraUsageDescription: "Elder Sentry needs camera access to scan suspicious messages or documents.",
         NSUserTrackingUsageDescription: "We use analytics to improve Elder Sentry and provide better scam protection. Your data is never shared.",
-        ITSAppUsesNonExemptEncryption: false
+        ITSAppUsesNonExemptEncryption: false,
+        CFBundleURLTypes: [
+          {
+            CFBundleURLName: "com.eldersentry.app",
+            CFBundleURLSchemes: ["eldersentry"]
+          }
+        ]
       }
     },
     android: {
@@ -64,6 +71,12 @@ export default {
         {
           icon: "./assets/notification-icon.png",
           color: "#ffffff"
+        }
+      ],
+      [
+        "expo-share-intent",
+        {
+          iosExtensionName: "ElderSentryShareExtension"
         }
       ]
     ],
