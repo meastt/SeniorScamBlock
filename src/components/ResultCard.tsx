@@ -12,41 +12,31 @@ interface ResultCardProps {
 }
 
 /**
- * Premium result display with sophisticated visual hierarchy
- * Clear, accessible design with emotional impact
+ * Clear result display with proper visual hierarchy
  */
 export const ResultCard: React.FC<ResultCardProps> = ({ riskLevel, explanation }) => {
   const getResultConfig = () => {
     switch (riskLevel) {
       case 'RED':
         return {
-          color: Colors.dangerRed,
-          backgroundColor: Colors.dangerRedLight,
-          borderColor: Colors.dangerRed,
+          color: Colors.danger,
+          backgroundColor: Colors.dangerLight,
           icon: '⚠️',
-          label: 'SCAM DETECTED',
-          description: 'Do not respond or click any links',
-          urgency: 'HIGH RISK',
+          label: 'High Risk - Likely Scam',
         };
       case 'YELLOW':
         return {
-          color: Colors.warningYellow,
-          backgroundColor: Colors.warningYellowLight,
-          borderColor: Colors.warningYellow,
-          icon: '🔍',
-          label: 'SUSPICIOUS',
-          description: 'Verify the sender before responding',
-          urgency: 'MEDIUM RISK',
+          color: Colors.warning,
+          backgroundColor: Colors.warningLight,
+          icon: '⚡',
+          label: 'Suspicious - Be Careful',
         };
       case 'GREEN':
         return {
-          color: Colors.safeGreen,
-          backgroundColor: Colors.white,
-          borderColor: Colors.safeGreen,
-          icon: '✅',
-          label: 'APPEARS SAFE',
-          description: 'This message seems legitimate',
-          urgency: 'LOW RISK',
+          color: Colors.success,
+          backgroundColor: Colors.successLight,
+          icon: '✓',
+          label: 'Appears Safe',
         };
     }
   };
@@ -54,118 +44,46 @@ export const ResultCard: React.FC<ResultCardProps> = ({ riskLevel, explanation }
   const config = getResultConfig();
 
   return (
-    <View style={[styles.container, { backgroundColor: config.backgroundColor }]}>
-      {/* Header with icon and risk level */}
+    <View style={[styles.container, {
+      backgroundColor: config.backgroundColor,
+      borderLeftColor: config.color,
+    }]}>
       <View style={styles.header}>
-        <View style={[styles.iconContainer, { 
-          backgroundColor: riskLevel === 'GREEN' ? 'transparent' : Colors.white 
-        }]}>
-          <Text style={styles.icon}>{config.icon}</Text>
-        </View>
-        <View style={styles.headerText}>
-          <Text style={[styles.urgency, { color: config.color }]}>{config.urgency}</Text>
-          <Text style={[styles.label, { color: config.color }]}>{config.label}</Text>
-        </View>
+        <Text style={styles.icon}>{config.icon}</Text>
+        <Text style={[styles.label, { color: config.color }]}>{config.label}</Text>
       </View>
 
-      {/* Description */}
-      <View style={[styles.descriptionContainer, { 
-        borderColor: config.color,
-        borderStyle: riskLevel === 'GREEN' ? 'solid' : 'dashed'
-      }]}>
-        <Text style={styles.description}>{config.description}</Text>
-      </View>
-
-      {/* Explanation */}
-      <View style={styles.explanationContainer}>
-        <Text style={styles.explanationLabel}>Analysis:</Text>
-        <Text style={styles.explanation}>{explanation}</Text>
-      </View>
-
-      {/* Bottom accent */}
-      <View style={[styles.accentBar, { backgroundColor: config.color }]} />
+      <Text style={styles.explanation}>{explanation}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.cardBackground,
-    borderRadius: Spacing.radiusXLarge,
-    padding: Spacing.cardPaddingLarge,
-    marginVertical: Spacing.lg,
-    marginHorizontal: Responsive.getScreenMargin(),
-    maxWidth: Responsive.getCardWidth(),
-    alignSelf: 'center',
-    width: '100%',
-    borderWidth: 2,
+    backgroundColor: Colors.backgroundSecondary,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.cardPadding,
+    marginVertical: Spacing.md,
+    marginHorizontal: Spacing.screenHorizontal,
+    borderLeftWidth: 4,
     ...Shadows.card,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.xl,
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: Spacing.radiusRound,
-    backgroundColor: Colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Spacing.lg,
-    ...Shadows.sm,
+    marginBottom: Spacing.md,
   },
   icon: {
-    fontSize: Spacing.iconMassive,
-  },
-  headerText: {
-    flex: 1,
-  },
-  urgency: {
-    ...Typography.caption,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: Spacing.xs,
+    fontSize: Spacing.iconLarge,
+    marginRight: Spacing.sm,
   },
   label: {
-    ...Typography.largeTitle,
+    ...Typography.title,
     fontWeight: '700',
-  },
-  descriptionContainer: {
-    backgroundColor: Colors.white,
-    borderRadius: Spacing.radiusLarge,
-    padding: Spacing.lg,
-    marginBottom: Spacing.lg,
-    borderWidth: 2,
-  },
-  description: {
-    ...Typography.subtitle,
-    color: Colors.textPrimary,
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  explanationContainer: {
-    backgroundColor: Colors.white,
-    borderRadius: Spacing.radiusLarge,
-    padding: Spacing.lg,
-    marginBottom: Spacing.lg,
-  },
-  explanationLabel: {
-    ...Typography.callout,
-    color: Colors.textSecondary,
-    fontWeight: '600',
-    marginBottom: Spacing.sm,
+    flex: 1,
   },
   explanation: {
     ...Typography.body,
     color: Colors.textPrimary,
-    lineHeight: 32,
-  },
-  accentBar: {
-    height: 4,
-    borderRadius: Spacing.radiusSmall,
-    width: '100%',
   },
 });

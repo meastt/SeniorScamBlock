@@ -1,6 +1,6 @@
 /**
- * Responsive spacing system for senior-friendly design
- * Balanced spacing that works across all screen sizes
+ * Spacing system optimized for senior accessibility
+ * Based on 8px grid with reasonable, not excessive, sizing
  */
 
 export const Spacing = {
@@ -8,57 +8,54 @@ export const Spacing = {
   xs: 4,
   sm: 8,
   md: 12,
-  
+
   // Base spacing
   base: 16,
   lg: 20,
   xl: 24,
-  
+
   // Large spacing
   xxl: 32,
   xxxl: 40,
-  
+
   // Extra large spacing
   huge: 48,
   massive: 64,
-  enormous: 80,
-  
-  // Screen layout - responsive margins
-  screenHorizontal: 20, // Reduced from 24 for better balance
-  screenVertical: 24,   // Reduced from 32
-  screenPadding: 20,
-  
-  // Component spacing - more reasonable
-  cardPadding: 20,      // Reduced from 24
-  cardPaddingLarge: 24, // Reduced from 32
-  sectionSpacing: 32,   // Reduced from 40
-  
-  // Button dimensions - still accessible but not oversized
-  buttonHeight: 72,     // Reduced from 88
-  buttonHeightSmall: 56, // Reduced from 64
-  buttonMinWidth: 72,   // Reduced from 88
-  buttonPadding: 20,    // Reduced from 24
-  
-  // Icon sizes - more proportional
+
+  // Screen layout
+  screenHorizontal: 16,
+  screenVertical: 16,
+  screenPadding: 16,
+
+  // Component spacing
+  cardPadding: 16,
+  cardPaddingLarge: 20,
+  sectionSpacing: 24,
+
+  // Button dimensions - accessible but not comical
+  buttonHeight: 56,
+  buttonHeightSmall: 44,
+  buttonMinWidth: 120,
+  buttonPadding: 16,
+
+  // Icon sizes - proportional
   iconTiny: 16,
   iconSmall: 20,
   iconMedium: 24,
-  iconLarge: 28,        // Reduced from 32
-  iconXLarge: 36,       // Reduced from 40
-  iconHuge: 44,         // Reduced from 48
-  iconMassive: 56,      // Reduced from 64
-  iconEnormous: 72,     // Reduced from 80
-  
-  // Touch targets - still accessible
-  minTouchTarget: 72,   // Reduced from 88
-  comfortableTouchTarget: 80, // Reduced from 96
-  
-  // Border radius - refined
-  radiusSmall: 8,
-  radiusMedium: 12,
-  radiusLarge: 16,
-  radiusXLarge: 20,
-  radiusHuge: 24,
+  iconLarge: 28,
+  iconXLarge: 32,
+  iconHuge: 40,
+  iconMassive: 48,
+
+  // Touch targets - WCAG AA compliant (44px minimum)
+  minTouchTarget: 44,
+  comfortableTouchTarget: 56,
+
+  // Border radius
+  radiusSmall: 6,
+  radiusMedium: 8,
+  radiusLarge: 12,
+  radiusXLarge: 16,
   radiusRound: 9999,
 };
 

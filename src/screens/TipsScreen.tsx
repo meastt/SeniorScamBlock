@@ -24,8 +24,8 @@ const TipsScreen = () => {
   const [selectedArticle, setSelectedArticle] = useState<EducationArticle | null>(null);
 
   const getArticleColor = (scamType: string) => {
-    if (scamType.includes('Grandparent')) return Colors.dangerRed;
-    if (scamType.includes('Government')) return Colors.warningYellow;
+    if (scamType.includes('Grandparent')) return Colors.danger;
+    if (scamType.includes('Government')) return Colors.warning;
     if (scamType.includes('Phishing')) return Colors.info;
     if (scamType.includes('Romance')) return Colors.premium;
     if (scamType.includes('Lottery')) return Colors.success;
@@ -253,10 +253,12 @@ const styles = StyleSheet.create({
     gap: Spacing.lg,
   },
   articleCard: {
-    backgroundColor: Colors.cardBackground,
+    backgroundColor: Colors.backgroundSecondary,
     borderRadius: Spacing.radiusLarge,
-    padding: Spacing.lg,
-    borderLeftWidth: 6,
+    padding: Spacing.base,
+    borderLeftWidth: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
     ...Shadows.card,
   },
   articleHeader: {
@@ -317,8 +319,8 @@ const styles = StyleSheet.create({
   },
   quickTipsTitle: {
     ...Typography.title,
-    color: Colors.safeGreenDark,
-    marginBottom: Spacing.lg,
+    color: Colors.successDark,
+    marginBottom: Spacing.md,
     fontWeight: '700',
   },
   quickTipsList: {

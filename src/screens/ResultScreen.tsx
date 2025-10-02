@@ -23,9 +23,9 @@ const ResultScreen = () => {
 
   const getRiskColor = () => {
     switch (result.riskLevel) {
-      case 'RED': return Colors.dangerRed;
-      case 'YELLOW': return Colors.warningYellow;
-      case 'GREEN': return Colors.safeGreen;
+      case 'RED': return Colors.danger;
+      case 'YELLOW': return Colors.warning;
+      case 'GREEN': return Colors.success;
     }
   };
 
@@ -176,29 +176,29 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     paddingHorizontal: Spacing.screenHorizontal,
-    paddingTop: Spacing.huge,
-    paddingBottom: Spacing.xl,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
   },
   headerIcon: {
-    width: 100,
-    height: 100,
-    borderRadius: Spacing.radiusRound,
+    width: 64,
+    height: 64,
+    borderRadius: Spacing.radiusLarge,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md,
   },
   headerIconText: {
-    fontSize: Spacing.iconEnormous,
+    fontSize: Spacing.iconHuge,
   },
   headerTitle: {
-    ...Typography.display,
+    ...Typography.largeTitle,
     color: Colors.textPrimary,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.xs,
     textAlign: 'center',
     fontWeight: '700',
   },
   headerSubtitle: {
-    ...Typography.bodyLarge,
+    ...Typography.body,
     color: Colors.textSecondary,
     textAlign: 'center',
   },
@@ -206,95 +206,95 @@ const styles = StyleSheet.create({
   // Action Steps Card
   actionStepsCard: {
     marginHorizontal: Spacing.screenHorizontal,
-    marginBottom: Spacing.xl,
-    backgroundColor: Colors.cardBackground,
-    borderRadius: Spacing.radiusXLarge,
-    padding: Spacing.cardPaddingLarge,
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.backgroundSecondary,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.cardPadding,
+    borderWidth: 1,
+    borderColor: Colors.border,
     ...Shadows.card,
   },
   actionStepsTitle: {
     ...Typography.title,
     color: Colors.textPrimary,
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md,
     fontWeight: '700',
   },
   actionStepsList: {
-    gap: Spacing.lg,
+    gap: Spacing.sm,
   },
   actionStep: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    padding: Spacing.lg,
-    backgroundColor: Colors.backgroundSecondary,
-    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: Spacing.radiusMedium,
     borderWidth: 1,
     borderColor: Colors.border,
   },
   urgentActionStep: {
-    backgroundColor: Colors.errorLight,
-    borderColor: Colors.error,
-    borderWidth: 2,
+    backgroundColor: Colors.dangerLight,
+    borderColor: Colors.danger,
   },
   actionStepIcon: {
-    fontSize: Spacing.iconLarge,
-    marginRight: Spacing.lg,
-    marginTop: Spacing.xs,
+    fontSize: Spacing.iconMedium,
+    marginRight: Spacing.sm,
   },
   actionStepText: {
     ...Typography.body,
     color: Colors.textPrimary,
     flex: 1,
-    lineHeight: 28,
   },
   urgentActionStepText: {
-    color: Colors.error,
+    color: Colors.danger,
     fontWeight: '600',
   },
 
   // Details Button Container
   detailsButtonContainer: {
     marginHorizontal: Spacing.screenHorizontal,
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md,
   },
 
   // Details Card
   detailsCard: {
     marginHorizontal: Spacing.screenHorizontal,
-    marginBottom: Spacing.xl,
-    backgroundColor: Colors.cardBackground,
-    borderRadius: Spacing.radiusXLarge,
-    padding: Spacing.cardPaddingLarge,
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.backgroundSecondary,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.cardPadding,
+    borderWidth: 1,
+    borderColor: Colors.border,
     ...Shadows.card,
   },
   detailsTitle: {
     ...Typography.subtitle,
     color: Colors.textPrimary,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
     fontWeight: '700',
   },
   detailsText: {
     ...Typography.body,
     color: Colors.textPrimary,
-    marginBottom: Spacing.xl,
-    lineHeight: 28,
+    marginBottom: Spacing.md,
   },
   scamTypeCard: {
     backgroundColor: Colors.warningLight,
-    padding: Spacing.lg,
-    borderRadius: Spacing.radiusLarge,
-    marginBottom: Spacing.xl,
-    borderWidth: 2,
+    padding: Spacing.md,
+    borderRadius: Spacing.radiusMedium,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
     borderColor: Colors.warning,
   },
   scamTypeLabel: {
     ...Typography.callout,
     fontWeight: '700',
-    color: Colors.warningYellowDark,
-    marginBottom: Spacing.sm,
+    color: Colors.warningDark,
+    marginBottom: Spacing.xs,
   },
   scamTypeText: {
-    ...Typography.bodyLarge,
-    color: Colors.warningYellowDark,
+    ...Typography.body,
+    color: Colors.warningDark,
     fontWeight: '600',
   },
 
@@ -302,29 +302,28 @@ const styles = StyleSheet.create({
   resourcesCard: {
     marginHorizontal: Spacing.screenHorizontal,
     backgroundColor: Colors.infoLight,
-    borderRadius: Spacing.radiusXLarge,
-    padding: Spacing.cardPaddingLarge,
-    borderWidth: 2,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.cardPadding,
+    borderWidth: 1,
     borderColor: Colors.info,
   },
   resourcesTitle: {
     ...Typography.subtitle,
-    color: Colors.info,
-    marginBottom: Spacing.lg,
+    color: Colors.infoDark,
+    marginBottom: Spacing.md,
     fontWeight: '700',
   },
   resourcesText: {
     ...Typography.body,
-    color: Colors.info,
-    marginBottom: Spacing.lg,
-    lineHeight: 28,
+    color: Colors.infoDark,
+    marginBottom: Spacing.md,
   },
   resourceList: {
-    gap: Spacing.md,
+    gap: Spacing.sm,
   },
   resourceItem: {
     ...Typography.body,
-    color: Colors.info,
+    color: Colors.infoDark,
     fontWeight: '500',
   },
 });

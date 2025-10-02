@@ -113,20 +113,21 @@ const MainNavigator = () => {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 100,
-    paddingBottom: 16,
-    paddingTop: 8,
-    borderTopWidth: 0,
+    height: 65,
+    paddingBottom: 8,
+    paddingTop: 4,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
     backgroundColor: Colors.white,
-    ...Shadows.lg,
+    ...Shadows.md,
   },
   tabLabel: {
     ...Typography.tab,
-    marginTop: 4,
+    marginTop: 2,
     fontWeight: '600',
   },
   tabIcon: {
-    fontSize: Spacing.iconMedium,
+    fontSize: Spacing.iconLarge,
   },
   tabItem: {
     minHeight: Spacing.minTouchTarget,
