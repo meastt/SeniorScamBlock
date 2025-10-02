@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   scrollContent: {
-    paddingBottom: Spacing.enormous,
+    paddingBottom: Spacing.massive,
   },
 
   // Header

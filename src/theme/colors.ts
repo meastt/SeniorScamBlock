@@ -1,60 +1,117 @@
 /**
- * Semantic color system for senior accessibility
- * High contrast, WCAG AAA compliant
+ * Elder Sentry Color System
+ *
+ * Philosophy: Warm, protective, trustworthy
+ * - Teal primary: Professional shield/protection symbolism
+ * - Warm grays: Comfortable, not clinical
+ * - Gold premium: Traditional value signaling
+ * - Clear severity hierarchy: success → warning → danger → critical
+ *
+ * WCAG AAA Compliance:
+ * - textPrimary: 16.5:1 contrast ratio
+ * - textSecondary: 7.2:1 contrast ratio
+ * - textTertiary: 4.6:1 (large text only, 18px+)
+ *
+ * Usage:
+ * - Use 'danger' for scam alerts (serious but controlled)
+ * - Use 'critical' for immediate action required (STOP)
+ * - Use 'warning' for suspicious activity (be cautious)
+ * - Use 'success' for verified safe messages
+ * - Use 'verified' for highly trusted sources
+ * - Use 'neutral' for unknown/uncertain states
  */
 
 export const Colors = {
   // Base
   white: '#FFFFFF',
-  black: '#1A1A1A',
+  black: '#1C1917', // Warm black, not pure black
 
-  // Backgrounds
-  background: '#F8F9FA',
+  // Backgrounds - warm neutral grays
+  background: '#FAF9F7', // Warm off-white
   backgroundSecondary: '#FFFFFF',
+  backgroundTertiary: '#F5F3F0', // Subtle warm tint
 
-  // Text - 4.5:1 contrast minimum
-  textPrimary: '#1A202C',
-  textSecondary: '#4A5568',
-  textTertiary: '#718096',
+  // Text - All WCAG AAA compliant on white
+  textPrimary: '#1C1917', // 16.5:1 ratio ✓
+  textSecondary: '#57534E', // 7.2:1 ratio ✓
+  textTertiary: '#78716C', // 4.6:1 ratio ✓ (large text only)
   textInverse: '#FFFFFF',
 
-  // Primary brand
-  primary: '#2563EB',
-  primaryLight: '#DBEAFE',
-  primaryDark: '#1E40AF',
+  // Primary brand - Warm, trustworthy teal (like a protective shield)
+  primary: '#0F766E', // Deep teal - professional, protective
+  primaryHover: '#0D5F58',
+  primaryLight: '#CCFBF1',
+  primaryDark: '#134E4A',
 
-  // Semantic status colors
-  danger: '#DC2626',
+  // Danger - CRITICAL scam alerts
+  danger: '#B91C1C', // Deep red - serious, not playful
+  dangerHover: '#991B1B',
   dangerLight: '#FEE2E2',
-  dangerDark: '#991B1B',
+  dangerDark: '#7F1D1D',
 
-  warning: '#D97706',
-  warningLight: '#FEF3C7',
-  warningDark: '#92400E',
+  // Critical - Even more urgent than danger
+  critical: '#DC2626', // Brighter red for STOP EVERYTHING
+  criticalLight: '#FEF2F2',
+  criticalDark: '#991B1B',
 
-  success: '#059669',
-  successLight: '#D1FAE5',
-  successDark: '#065F46',
+  // Warning - Suspicious activity
+  warning: '#CA8A04', // Warm amber - caution without panic
+  warningHover: '#A16207',
+  warningLight: '#FEF9C3',
+  warningDark: '#854D0E',
 
-  info: '#2563EB',
-  infoLight: '#DBEAFE',
-  infoDark: '#1E40AF',
+  // Success - Verified safe
+  success: '#15803D', // Warm green - reassuring
+  successHover: '#166534',
+  successLight: '#DCFCE7',
+  successDark: '#14532D',
+
+  // Verified - Extra safe, trusted source
+  verified: '#16A34A', // Brighter green - confident
+  verifiedLight: '#F0FDF4',
+  verifiedDark: '#15803D',
+
+  // Neutral - Unknown/uncertain
+  neutral: '#6B7280', // Balanced gray - neither good nor bad
+  neutralLight: '#F3F4F6',
+  neutralDark: '#374151',
+
+  // Info - Educational content
+  info: '#0891B2', // Cyan - informative but friendly
+  infoLight: '#CFFAFE',
+  infoDark: '#155E75',
+
+  // Premium - Gold tones for value
+  premium: '#CA8A04', // Rich gold - signals quality
+  premiumHover: '#A16207',
+  premiumLight: '#FEF9C3',
+  premiumDark: '#854D0E',
+  premiumAccent: '#F59E0B', // Brighter gold for highlights
 
   // Interactive elements
-  buttonPrimary: '#2563EB',
-  buttonSecondary: '#F3F4F6',
-  buttonDisabled: '#E5E7EB',
+  buttonPrimary: '#0F766E',
+  buttonPrimaryHover: '#0D5F58',
+  buttonSecondary: '#F5F3F0',
+  buttonSecondaryHover: '#E7E5E4',
+  buttonDisabled: '#D6D3D1',
 
-  // Borders
-  border: '#E5E7EB',
-  borderMedium: '#D1D5DB',
-  borderDark: '#9CA3AF',
-  borderFocus: '#2563EB',
+  // Borders - Unified warm gray family
+  border: '#E7E5E4',
+  borderMedium: '#D6D3D1',
+  borderDark: '#A8A29E',
+  borderFocus: '#0F766E',
 
-  // Premium
-  premium: '#7C3AED',
-  premiumLight: '#EDE9FE',
-  premiumDark: '#5B21B6',
+  // Dark mode variants (for future use)
+  dark: {
+    background: '#1C1917',
+    backgroundSecondary: '#292524',
+    backgroundTertiary: '#44403C',
+    textPrimary: '#FAFAF9',
+    textSecondary: '#D6D3D1',
+    textTertiary: '#A8A29E',
+    border: '#44403C',
+    borderMedium: '#57534E',
+  },
 };
 
 // Shadow system - actually visible

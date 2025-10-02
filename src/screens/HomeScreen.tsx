@@ -224,16 +224,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: Responsive.isTablet ? Spacing.massive : Spacing.enormous,
+    paddingBottom: Spacing.massive,
   },
-  
+
   // Hero Section
   heroSection: {
     alignItems: 'center',
     paddingHorizontal: Spacing.screenHorizontal,
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.lg,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundTertiary,
   },
   heroBackground: {
     display: 'none',
