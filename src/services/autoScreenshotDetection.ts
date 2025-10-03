@@ -1,7 +1,19 @@
-import * as MediaLibrary from 'expo-media-library';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { analyzeScreenshot } from './screenshotAnalysis';
 import { analyzeMessage } from './scamDetection';
+
+// Check if we're in Expo Go (where native modules might not be available)
+const isExpoGo = Platform.OS === 'web' || (Platform.OS === 'ios' && !__DEV__);
+
+// Conditionally import MediaLibrary - fallback for Expo Go
+let MediaLibrary: any = null;
+try {
+  if (!isExpoGo) {
+    MediaLibrary = require('expo-media-library');
+  }
+} catch (error) {
+  console.warn('MediaLibrary module not available in this environment');
+}
 
 /**
  * Auto Screenshot Detection Service
@@ -20,6 +32,11 @@ export interface AutoScreenshotOptions {
  */
 export const requestMediaLibraryPermissions = async (): Promise<boolean> => {
   try {
+    if (isExpoGo || !MediaLibrary) {
+      console.log('MediaLibrary not available in this environment');
+      return false;
+    }
+
     const { status } = await MediaLibrary.requestPermissionsAsync();
     return status === 'granted';
   } catch (error) {
@@ -33,6 +50,11 @@ export const requestMediaLibraryPermissions = async (): Promise<boolean> => {
  */
 export const getLatestScreenshot = async (): Promise<string | null> => {
   try {
+    if (isExpoGo || !MediaLibrary) {
+      console.log('MediaLibrary not available in this environment');
+      return null;
+    }
+
     const hasPermission = await requestMediaLibraryPermissions();
     if (!hasPermission) {
       console.log('Media library permission not granted');
@@ -74,7 +96,8 @@ export const startScreenshotMonitoring = (
   onNewScreenshot: (screenshotUri: string) => void,
   options: AutoScreenshotOptions = { enabled: true, autoAnalyze: false, showNotification: true }
 ): (() => void) => {
-  if (!options.enabled) {
+  if (!options.enabled || isExpoGo || !MediaLibrary) {
+    console.log('Screenshot monitoring not available in this environment');
     return () => {}; // Return empty cleanup function
   }
 
@@ -168,6 +191,11 @@ export const analyzeScreenshotAutomatically = async (
  */
 export const initializeAutoScreenshotDetection = async (): Promise<boolean> => {
   try {
+    if (isExpoGo || !MediaLibrary) {
+      console.log('Auto screenshot detection not available in this environment');
+      return false;
+    }
+
     const hasPermission = await requestMediaLibraryPermissions();
     if (!hasPermission) {
       Alert.alert(

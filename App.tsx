@@ -13,7 +13,7 @@ export default function App() {
     // Handle deep links and shared content
     const handleDeepLink = (event: { url: string }) => {
       const { path, queryParams } = Linking.parse(event.url);
-      
+
       // Handle shared text from Messages/Email
       if (queryParams?.text && navigationRef.current) {
         navigationRef.current.navigate('Home', {
@@ -24,7 +24,7 @@ export default function App() {
     };
 
     // Listen for deep links
-    const subscription = Linking.addEventListener('url', handleDeepLink);
+    const linkingSubscription = Linking.addEventListener('url', handleDeepLink);
 
     // Check if app was opened via share/deep link
     Linking.getInitialURL().then((url) => {
@@ -34,7 +34,7 @@ export default function App() {
     });
 
     return () => {
-      subscription.remove();
+      linkingSubscription.remove();
     };
   }, []);
 

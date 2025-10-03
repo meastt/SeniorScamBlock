@@ -4,6 +4,7 @@ import { Colors, Shadows } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
 import { Responsive } from '../theme/responsive';
+import { Animations } from '../theme/gradients';
 
 interface SeniorButtonProps {
   title: string;
@@ -13,6 +14,8 @@ interface SeniorButtonProps {
   icon?: React.ReactNode;
   fullWidth?: boolean;
   size?: 'large' | 'medium' | 'small';
+  hapticFeedback?: boolean;
+  highContrast?: boolean;
 }
 
 /**
@@ -27,12 +30,20 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
   icon,
   fullWidth = false,
   size = 'large',
+  hapticFeedback = true,
+  highContrast = false,
 }) => {
   const getButtonStyle = (): ViewStyle => {
+    // Enhanced touch targets for seniors (minimum 48x48 points)
+    const minTouchTarget = 48;
+
     const baseStyle: ViewStyle = {
-      minHeight: size === 'large' ? Spacing.buttonHeight :
-                 size === 'medium' ? Spacing.buttonHeightSmall :
-                 40,
+      minHeight: Math.max(
+        size === 'large' ? Spacing.buttonHeight :
+        size === 'medium' ? Spacing.buttonHeightSmall : 40,
+        minTouchTarget
+      ),
+      minWidth: fullWidth ? undefined : minTouchTarget * 2, // Wider for better targeting
       paddingHorizontal: size === 'large' ? Spacing.lg :
                          size === 'medium' ? Spacing.base : Spacing.md,
       paddingVertical: size === 'large' ? Spacing.md :
@@ -41,6 +52,7 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       justifyContent: 'center',
       alignItems: 'center',
       flexDirection: 'row',
+      position: 'relative',
     };
 
     if (fullWidth) {
@@ -64,9 +76,9 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       case 'secondary':
         return {
           ...baseStyle,
-          backgroundColor: Colors.buttonSecondary,
-          borderWidth: 1,
-          borderColor: Colors.border,
+          backgroundColor: highContrast ? Colors.white : Colors.buttonSecondary,
+          borderWidth: highContrast ? 2 : 1,
+          borderColor: highContrast ? Colors.textPrimary : Colors.border,
         };
       case 'danger':
         return {
@@ -141,12 +153,28 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       style={getButtonStyle()}
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.7}
+      activeOpacity={0.8} // Slightly more opaque for better visual feedback
       accessibilityRole="button"
       accessibilityLabel={title}
+      accessibilityHint={`Tap to ${title.toLowerCase()}`}
+      accessibilityState={{ disabled }}
+      // Enhanced touch feedback for seniors
+      touchSoundDisabled={false}
+      // Larger hit slop for easier targeting
+      hitSlop={{
+        top: 8,
+        bottom: 8,
+        left: 8,
+        right: 8,
+      }}
     >
       {icon && <View style={styles.iconContainer}>{icon}</View>}
-      <Text style={getTextStyle()}>{title}</Text>
+      <Text style={[
+        getTextStyle(),
+        highContrast && styles.highContrastText
+      ]}>
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -154,5 +182,11 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
 const styles = StyleSheet.create({
   iconContainer: {
     marginRight: Spacing.sm,
+  },
+  highContrastText: {
+    fontWeight: '700', // Extra bold for high contrast
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });

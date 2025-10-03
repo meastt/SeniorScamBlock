@@ -1,5 +1,23 @@
-import { Alert } from 'react-native';
-import Voice from '@react-native-voice/voice';
+import { Alert, Platform } from 'react-native';
+
+// Check if we're in Expo Go (where native modules might not be available)
+const isExpoGo = Platform.OS === 'web' || (Platform.OS === 'ios' && !__DEV__);
+
+/**
+ * Voice Input Service
+ * Provides voice-to-text functionality for seniors who prefer speaking over typing
+ * Makes scam checking more accessible and intuitive
+ */
+
+// Conditionally import Voice - fallback for Expo Go
+let Voice: any = null;
+try {
+  if (!isExpoGo) {
+    Voice = require('@react-native-voice/voice');
+  }
+} catch (error) {
+  console.warn('Voice module not available in this environment');
+}
 
 /**
  * Voice Input Service
@@ -25,6 +43,15 @@ export interface VoiceResult {
  */
 export const initializeVoiceRecognition = async (): Promise<boolean> => {
   try {
+    if (isExpoGo || !Voice) {
+      Alert.alert(
+        'Voice Recognition Not Available',
+        'Voice recognition requires a development build. Please use text input or try the web version.',
+        [{ text: 'OK' }]
+      );
+      return false;
+    }
+
     // Check if voice recognition is available
     const isAvailable = await Voice.isAvailable();
     if (!isAvailable) {
@@ -52,6 +79,12 @@ export const startVoiceRecognition = (
 ): Promise<void> => {
   return new Promise(async (resolve, reject) => {
     try {
+      if (isExpoGo || !Voice) {
+        onError('Voice recognition requires a development build. Please use text input instead.');
+        reject(new Error('Voice recognition not available'));
+        return;
+      }
+
       // Initialize voice recognition
       const isAvailable = await initializeVoiceRecognition();
       if (!isAvailable) {
@@ -72,7 +105,7 @@ export const startVoiceRecognition = (
         if (e.value && e.value.length > 0) {
           const text = e.value[0];
           const confidence = e.confidence ? e.confidence[0] : undefined;
-          
+
           onResult({
             success: true,
             text: text.trim(),
@@ -118,6 +151,9 @@ export const stopVoiceRecognition = async (): Promise<void> => {
  * Check if voice recognition is currently active
  */
 export const isVoiceRecognitionActive = (): boolean => {
+  if (isExpoGo || !Voice) {
+    return false;
+  }
   return Voice.isRecognizing();
 };
 

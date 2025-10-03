@@ -38,11 +38,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         AsyncStorage.getItem('familyMembers'),
       ]);
 
-      if (subData) setSubscription(JSON.parse(subData));
+      if (subData) {
+        const parsedSub = JSON.parse(subData);
+        setSubscription(parsedSub);
+      }
       if (historyData) setAnalysisHistory(JSON.parse(historyData));
       if (familyData) setFamilyMembers(JSON.parse(familyData));
     } catch (error) {
       console.error('Error loading data:', error);
+      // Ensure we have a valid subscription object even if loading fails
+      setSubscription(defaultSubscription);
     }
   };
 
@@ -115,5 +120,15 @@ export const useApp = () => {
   if (!context) {
     throw new Error('useApp must be used within AppProvider');
   }
+
+  // Ensure subscription is always defined
+  if (!context.subscription || typeof context.subscription.tier === 'undefined') {
+    console.warn('Subscription context not properly initialized, using defaults');
+    return {
+      ...context,
+      subscription: defaultSubscription,
+    };
+  }
+
   return context;
 };

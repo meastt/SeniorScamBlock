@@ -1,5 +1,17 @@
-import SiriShortcuts from 'react-native-siri-shortcut';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
+
+// Check if we're in Expo Go (where native modules might not be available)
+const isExpoGo = Platform.OS === 'web' || (Platform.OS === 'ios' && !__DEV__);
+
+// Conditionally import SiriShortcuts - fallback for Expo Go
+let SiriShortcuts: any = null;
+try {
+  if (!isExpoGo) {
+    SiriShortcuts = require('react-native-siri-shortcut');
+  }
+} catch (error) {
+  console.warn('Siri Shortcuts module not available in this environment');
+}
 
 /**
  * Siri Shortcuts Service
@@ -43,6 +55,11 @@ export const DEFAULT_SHORTCUTS: SiriShortcutConfig[] = [
  */
 export const isSiriShortcutsSupported = async (): Promise<boolean> => {
   try {
+    if (isExpoGo || !SiriShortcuts) {
+      console.log('Siri Shortcuts not available in this environment');
+      return false;
+    }
+
     return await SiriShortcuts.isSupported();
   } catch (error) {
     console.error('Error checking Siri Shortcuts support:', error);
@@ -55,6 +72,15 @@ export const isSiriShortcutsSupported = async (): Promise<boolean> => {
  */
 export const addSiriShortcut = async (config: SiriShortcutConfig): Promise<boolean> => {
   try {
+    if (isExpoGo || !SiriShortcuts) {
+      Alert.alert(
+        'Siri Shortcuts Not Available',
+        'Siri Shortcuts require a development build. Please use voice input within the app instead.',
+        [{ text: 'OK' }]
+      );
+      return false;
+    }
+
     const isSupported = await isSiriShortcutsSupported();
     if (!isSupported) {
       Alert.alert(
@@ -89,6 +115,15 @@ export const addSiriShortcut = async (config: SiriShortcutConfig): Promise<boole
  */
 export const addDefaultShortcuts = async (): Promise<void> => {
   try {
+    if (isExpoGo || !SiriShortcuts) {
+      Alert.alert(
+        'Siri Shortcuts Not Available',
+        'Siri Shortcuts require a development build. You can still use voice input within the app.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     const isSupported = await isSiriShortcutsSupported();
     if (!isSupported) {
       console.log('Siri Shortcuts not supported, skipping...');
@@ -114,6 +149,11 @@ export const addDefaultShortcuts = async (): Promise<void> => {
  */
 export const removeSiriShortcut = async (phrase: string): Promise<boolean> => {
   try {
+    if (isExpoGo || !SiriShortcuts) {
+      console.log('Siri Shortcuts not available in this environment');
+      return false;
+    }
+
     await SiriShortcuts.removeShortcut(phrase);
     return true;
   } catch (error) {
@@ -127,6 +167,11 @@ export const removeSiriShortcut = async (phrase: string): Promise<boolean> => {
  */
 export const getAvailableShortcuts = async (): Promise<SiriShortcutConfig[]> => {
   try {
+    if (isExpoGo || !SiriShortcuts) {
+      console.log('Siri Shortcuts not available in this environment');
+      return [];
+    }
+
     const shortcuts = await SiriShortcuts.getShortcuts();
     return shortcuts.map(shortcut => ({
       phrase: shortcut.phrase,
@@ -203,6 +248,11 @@ export const showSiriShortcutsGuide = (): void => {
  */
 export const initializeSiriShortcuts = async (): Promise<void> => {
   try {
+    if (isExpoGo || !SiriShortcuts) {
+      console.log('Siri Shortcuts not available in this environment');
+      return;
+    }
+
     const isSupported = await isSiriShortcutsSupported();
     if (!isSupported) {
       console.log('Siri Shortcuts not supported on this device');

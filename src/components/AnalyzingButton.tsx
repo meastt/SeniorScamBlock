@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
 import { SeniorButton } from './SeniorButton';
+import { Gradients, Animations, AnimationDurations } from '../theme/gradients';
 
 interface AnalyzingButtonProps {
   isAnalyzing: boolean;
@@ -17,52 +18,86 @@ export const AnalyzingButton: React.FC<AnalyzingButtonProps> = ({
   onPress,
   disabled = false,
 }) => {
-  const animatedValue = useRef(new Animated.Value(1)).current;
+  const scaleValue = useRef(new Animated.Value(1)).current;
+  const opacityValue = useRef(new Animated.Value(1)).current;
+  const pulseValue = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     if (isAnalyzing) {
-      // Start subtle pulsing animation
+      // Start gentle pulsing animation for analyzing state
       const pulseAnimation = Animated.loop(
         Animated.sequence([
-          Animated.timing(animatedValue, {
-            toValue: 1,
-            duration: 1000,
+          Animated.timing(pulseValue, {
+            toValue: 1.05,
+            duration: AnimationDurations.slow,
             easing: Easing.inOut(Easing.ease),
-            useNativeDriver: false,
+            useNativeDriver: true,
           }),
-          Animated.timing(animatedValue, {
-            toValue: 0.7,
-            duration: 1000,
+          Animated.timing(pulseValue, {
+            toValue: 0.95,
+            duration: AnimationDurations.slow,
             easing: Easing.inOut(Easing.ease),
-            useNativeDriver: false,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+
+      // Subtle breathing effect
+      const breatheAnimation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(scaleValue, {
+            toValue: 1.02,
+            duration: AnimationDurations.verySlow,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleValue, {
+            toValue: 0.98,
+            duration: AnimationDurations.verySlow,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
           }),
         ])
       );
 
       pulseAnimation.start();
+      breatheAnimation.start();
 
       return () => {
         pulseAnimation.stop();
+        breatheAnimation.stop();
       };
     } else {
-      animatedValue.setValue(1);
+      // Reset to normal state
+      Animated.parallel([
+        Animated.spring(scaleValue, {
+          toValue: 1,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseValue, {
+          toValue: 1,
+          duration: AnimationDurations.fast,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
-  }, [isAnalyzing, animatedValue]);
-
-  const pulseOpacity = animatedValue;
+  }, [isAnalyzing]);
 
   const title = isAnalyzing ? '🔄 Analyzing...' : '🔍 Check Message';
 
   return (
     <Animated.View
       style={{
-        opacity: isAnalyzing ? pulseOpacity : 1,
+        transform: [
+          { scale: isAnalyzing ? pulseValue : scaleValue },
+        ],
+        opacity: isAnalyzing ? 0.9 : 1,
       }}
     >
       <SeniorButton
         title={title}
         onPress={onPress}
-        variant="primary"
+        variant={isAnalyzing ? "secondary" : "primary"}
         fullWidth
         disabled={disabled || isAnalyzing}
       />

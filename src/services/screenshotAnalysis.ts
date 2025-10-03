@@ -1,6 +1,18 @@
 import * as ImagePicker from 'expo-image-picker';
-import { Alert } from 'react-native';
-import TesseractOcr from 'react-native-tesseract-ocr';
+import { Alert, Platform } from 'react-native';
+
+// Check if we're in Expo Go (where native modules might not be available)
+const isExpoGo = Platform.OS === 'web' || (Platform.OS === 'ios' && !__DEV__);
+
+// Conditionally import TesseractOcr - fallback for Expo Go
+let TesseractOcr: any = null;
+try {
+  if (!isExpoGo) {
+    TesseractOcr = require('react-native-tesseract-ocr');
+  }
+} catch (error) {
+  console.warn('OCR module not available in this environment');
+}
 
 /**
  * Screenshot Analysis Service
@@ -139,15 +151,24 @@ export const showScreenshotOptions = (): Promise<'camera' | 'library' | 'cancel'
  */
 export const analyzeScreenshot = async (imageUri: string): Promise<any> => {
   try {
+    if (isExpoGo || !TesseractOcr) {
+      return {
+        success: false,
+        extractedText: '',
+        imageUri,
+        error: 'OCR analysis requires a development build. Please use text input or try the web version.',
+      };
+    }
+
     console.log('Starting OCR analysis for:', imageUri);
-    
+
     // Extract text using OCR
     const extractedText = await TesseractOcr.recognize(imageUri, 'LANG_ENGLISH', {
       logger: (m) => console.log('OCR Progress:', m),
     });
-    
+
     console.log('OCR extracted text:', extractedText);
-    
+
     if (!extractedText || extractedText.trim().length === 0) {
       return {
         success: false,
@@ -156,7 +177,7 @@ export const analyzeScreenshot = async (imageUri: string): Promise<any> => {
         error: 'No text could be read from the image. Please try with a clearer photo.',
       };
     }
-    
+
     return {
       success: true,
       extractedText: extractedText.trim(),

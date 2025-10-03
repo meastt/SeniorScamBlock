@@ -88,6 +88,28 @@ export const Colors = {
   premiumDark: '#854D0E',
   premiumAccent: '#F59E0B', // Brighter gold for highlights
 
+  // Gradients for modern visual hierarchy
+  gradientPrimary: ['#0F766E', '#134E4A'],
+  gradientPremium: ['#CA8A04', '#F59E0B'],
+  gradientSuccess: ['#15803D', '#16A34A'],
+  gradientCard: ['#FFFFFF', '#FAF9F7'],
+
+  // Modern shadows for depth
+  shadowSoft: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  shadowStrong: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+
   // Interactive elements
   buttonPrimary: '#0F766E',
   buttonPrimaryHover: '#0D5F58',

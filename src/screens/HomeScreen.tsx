@@ -10,7 +10,9 @@ import {
   Platform,
   Dimensions,
   Keyboard,
+  TouchableOpacity,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SeniorButton } from '../components/SeniorButton';
@@ -27,6 +29,7 @@ import { Colors, Shadows } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
 import { Responsive } from '../theme/responsive';
+import { Gradients, Animations } from '../theme/gradients';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -45,6 +48,12 @@ const HomeScreen = () => {
   const [currentScreenshotUri, setCurrentScreenshotUri] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState('');
   const [isAnalyzingScreenshot, setIsAnalyzingScreenshot] = useState(false);
+  const [recentMessages, setRecentMessages] = useState<string[]>([
+    'Hi Grandma, I need money for emergency surgery...',
+    'Congratulations! You won $1,000,000! Click here...',
+    'Your package delivery failed, update payment info...'
+  ]);
+  const [expandedHelp, setExpandedHelp] = useState<string | null>(null);
 
   // Handle shared text from other apps
   useEffect(() => {
@@ -235,6 +244,22 @@ const HomeScreen = () => {
     handleScreenshotAnalysis();
   };
 
+  const handleQuickFill = (message: string) => {
+    setMessageText(message);
+    // Add gentle animation feedback
+    setTimeout(() => {
+      Alert.alert(
+        'Message Added',
+        'Message pasted successfully. Tap "Check Message" when ready.',
+        [{ text: 'OK' }]
+      );
+    }, 300);
+  };
+
+  const toggleHelp = (section: string) => {
+    setExpandedHelp(expandedHelp === section ? null : section);
+  };
+
   const handleVoiceInput = async () => {
     try {
       const option = await showVoiceInputOptions();
@@ -290,27 +315,56 @@ const HomeScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           {/* Hero Section with enhanced visual interest */}
-          <View style={styles.heroSection}>
-            <View style={styles.heroBackground} />
+          <LinearGradient
+            colors={Gradients.hero.colors}
+            start={Gradients.hero.start}
+            end={Gradients.hero.end}
+            style={styles.heroSection}
+          >
             <View style={styles.heroIcon}>
-              <Text style={styles.heroEmoji}>🛡️</Text>
+              <LinearGradient
+                colors={Colors.gradientPrimary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.heroIconGradient}
+              >
+                <Text style={styles.heroEmoji}>🛡️</Text>
+              </LinearGradient>
             </View>
             <Text style={styles.heroTitle}>Elder Sentry</Text>
             <Text style={styles.heroSubtitle}>
               AI-powered protection for your peace of mind
             </Text>
-            
-            {/* Status Badge */}
-            <View style={styles.statusBadge}>
-              <Text style={styles.statusIcon}>✨</Text>
-              <Text style={styles.statusText}>
-                {subscription.tier === 'PREMIUM' 
-                  ? 'Premium Protection Active' 
+
+            {/* Status Badge with enhanced styling */}
+            <LinearGradient
+              colors={subscription.tier === 'PREMIUM'
+                ? Colors.gradientPremium
+                : ['#FFFFFF', '#F8FAFC']
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[
+                styles.statusBadge,
+                subscription.tier === 'PREMIUM' && {
+                  borderColor: Colors.premium,
+                }
+              ]}
+            >
+              <Text style={styles.statusIcon}>
+                {subscription.tier === 'PREMIUM' ? '👑' : '✨'}
+              </Text>
+              <Text style={[
+                styles.statusText,
+                subscription.tier === 'PREMIUM' && styles.statusTextPremium
+              ]}>
+                {subscription.tier === 'PREMIUM'
+                  ? 'Premium Protection Active'
                   : `${remainingChecks} free checks remaining`
                 }
               </Text>
-            </View>
-          </View>
+            </LinearGradient>
+          </LinearGradient>
 
           {/* Main Action Card */}
           <View style={styles.mainCard}>
@@ -362,45 +416,137 @@ const HomeScreen = () => {
             </View>
           </View>
 
-          {/* Quick Tips Card */}
-          <View style={styles.tipsCard}>
-            <Text style={styles.tipsTitle}>How to Check Messages</Text>
-            <View style={styles.tipsList}>
-              <View style={styles.tipItem}>
-                <View style={styles.tipNumber}>
-                  <Text style={styles.tipNumberText}>1</Text>
-                </View>
-                <Text style={styles.tipText}>
-                  <Text style={styles.tipBold}>Long-press the message</Text> in Messages or Mail app
-                </Text>
+          {/* Recent Messages Section - Smart Defaults */}
+          {recentMessages.length > 0 && !messageText && (
+            <View style={styles.recentMessagesCard}>
+              <View style={styles.recentHeader}>
+                <Text style={styles.recentIcon}>🕐</Text>
+                <Text style={styles.recentTitle}>Common Suspicious Messages</Text>
+                <Text style={styles.recentSubtitle}>Tap any message to check it</Text>
               </View>
-              <View style={styles.tipItem}>
-                <View style={styles.tipNumber}>
-                  <Text style={styles.tipNumberText}>2</Text>
-                </View>
-                <Text style={styles.tipText}>
-                  <Text style={styles.tipBold}>Tap "Share"</Text> and select "Elder Sentry"
-                </Text>
-              </View>
-              <View style={styles.tipItem}>
-                <View style={styles.tipNumber}>
-                  <Text style={styles.tipNumberText}>3</Text>
-                </View>
-                <Text style={styles.tipText}>
-                  <Text style={styles.tipBold}>Automatic analysis</Text> - no copying needed!
-                </Text>
+              <View style={styles.recentList}>
+                {recentMessages.map((message, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.recentItem}
+                    onPress={() => handleQuickFill(message)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.recentEmoji}>⚠️</Text>
+                    <Text style={styles.recentText} numberOfLines={2}>
+                      {message}
+                    </Text>
+                    <Text style={styles.recentArrow}>→</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
-            
-            {/* Alternative methods */}
-            <View style={styles.alternativeMethod}>
-              <Text style={styles.alternativeTitle}>Other ways to check:</Text>
-              <View style={styles.alternativeSteps}>
-                <Text style={styles.alternativeStep}>• 🎤 Tap "Speak Message" and say the suspicious text out loud</Text>
-                <Text style={styles.alternativeStep}>• 📸 Take a screenshot and tap "Analyze Screenshot"</Text>
-                <Text style={styles.alternativeStep}>• Copy message → Paste above → Tap blue button</Text>
+          )}
+
+          {/* Contextual Help System - Progressive Disclosure */}
+          <View style={styles.helpCard}>
+            <TouchableOpacity
+              style={styles.helpHeader}
+              onPress={() => toggleHelp('main')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.helpIcon}>❓</Text>
+              <Text style={styles.helpTitle}>How to Check Messages</Text>
+              <Text style={[
+                styles.helpToggle,
+                expandedHelp === 'main' && styles.helpToggleActive
+              ]}>
+                {expandedHelp === 'main' ? '−' : '+'}
+              </Text>
+            </TouchableOpacity>
+
+            {expandedHelp === 'main' && (
+              <View style={styles.helpContent}>
+                <View style={styles.helpSection}>
+                  <TouchableOpacity
+                    style={styles.helpMethod}
+                    onPress={() => toggleHelp('share')}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.helpMethodIcon}>📱</Text>
+                    <View style={styles.helpMethodContent}>
+                      <Text style={styles.helpMethodTitle}>Share from Messages/Mail</Text>
+                      <Text style={styles.helpMethodDesc}>Long-press → Share → Select Elder Sentry</Text>
+                    </View>
+                    <Text style={styles.helpMethodToggle}>
+                      {expandedHelp === 'share' ? '−' : '+'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {expandedHelp === 'share' && (
+                    <View style={styles.helpDetail}>
+                      <Text style={styles.helpDetailText}>
+                        • In Messages: Long-press the suspicious message{'\n'}
+                        • Tap "Share" button{'\n'}
+                        • Select "Elder Sentry" from the app list{'\n'}
+                        • Automatic analysis begins instantly!
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                <View style={styles.helpSection}>
+                  <TouchableOpacity
+                    style={styles.helpMethod}
+                    onPress={() => toggleHelp('voice')}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.helpMethodIcon}>🎤</Text>
+                    <View style={styles.helpMethodContent}>
+                      <Text style={styles.helpMethodTitle}>Voice Input</Text>
+                      <Text style={styles.helpMethodDesc}>Speak the message out loud</Text>
+                    </View>
+                    <Text style={styles.helpMethodToggle}>
+                      {expandedHelp === 'voice' ? '−' : '+'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {expandedHelp === 'voice' && (
+                    <View style={styles.helpDetail}>
+                      <Text style={styles.helpDetailText}>
+                        • Tap "Speak Message" button{'\n'}
+                        • Say the suspicious text clearly{'\n'}
+                        • Confirm what you said{'\n'}
+                        • Analysis starts automatically!
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                <View style={styles.helpSection}>
+                  <TouchableOpacity
+                    style={styles.helpMethod}
+                    onPress={() => toggleHelp('screenshot')}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.helpMethodIcon}>📸</Text>
+                    <View style={styles.helpMethodContent}>
+                      <Text style={styles.helpMethodTitle}>Screenshot Analysis</Text>
+                      <Text style={styles.helpMethodDesc}>For images with text</Text>
+                    </View>
+                    <Text style={styles.helpMethodToggle}>
+                      {expandedHelp === 'screenshot' ? '−' : '+'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {expandedHelp === 'screenshot' && (
+                    <View style={styles.helpDetail}>
+                      <Text style={styles.helpDetailText}>
+                        • Take screenshot of suspicious image{'\n'}
+                        • Tap "Analyze Screenshot"{'\n'}
+                        • Choose camera or photo library{'\n'}
+                        • Text is extracted and analyzed!
+                      </Text>
+                    </View>
+                  )}
+                </View>
               </View>
-            </View>
+            )}
           </View>
 
           {/* Premium CTA */}
@@ -456,22 +602,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.screenHorizontal,
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.lg,
-    backgroundColor: Colors.backgroundTertiary,
-  },
-  heroBackground: {
-    display: 'none',
+    borderBottomLeftRadius: Spacing.radiusLarge,
+    borderBottomRightRadius: Spacing.radiusLarge,
+    marginHorizontal: Spacing.screenHorizontal,
   },
   heroIcon: {
-    width: 64,
-    height: 64,
+    width: 72,
+    height: 72,
     borderRadius: Spacing.radiusLarge,
-    backgroundColor: Colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
+    ...Colors.shadowStrong,
+  },
+  heroIconGradient: {
+    width: '100%',
+    height: '100%',
+    borderRadius: Spacing.radiusLarge,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   heroEmoji: {
-    fontSize: Spacing.iconHuge,
+    fontSize: 32,
+    color: Colors.textInverse,
   },
   heroTitle: {
     ...Typography.display,
@@ -487,23 +640,27 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   statusBadge: {
-    backgroundColor: Colors.backgroundSecondary,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: Spacing.radiusMedium,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: Spacing.radiusLarge,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.border, // Will be overridden inline for premium
+    ...Colors.shadowSoft,
   },
   statusIcon: {
-    fontSize: Spacing.iconSmall,
-    marginRight: Spacing.xs,
+    fontSize: 18,
+    marginRight: Spacing.sm,
   },
   statusText: {
-    ...Typography.callout,
+    ...Typography.body,
     color: Colors.textPrimary,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  statusTextPremium: {
+    color: Colors.premiumDark,
+    fontWeight: '700',
   },
 
   // Main Action Card
@@ -515,7 +672,9 @@ const styles = StyleSheet.create({
     padding: Spacing.cardPadding,
     borderWidth: 1,
     borderColor: Colors.border,
-    ...Shadows.card,
+    ...Colors.shadowStrong,
+    position: 'relative',
+    overflow: 'hidden',
   },
   cardHeader: {
     marginBottom: Spacing.md,
@@ -551,75 +710,152 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
 
-  // Tips Card
-  tipsCard: {
+  // Contextual Help Card - Progressive Disclosure
+  helpCard: {
+    marginHorizontal: Spacing.screenHorizontal,
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.backgroundSecondary,
+    borderRadius: Spacing.radiusLarge,
+    borderWidth: 1,
+    borderColor: Colors.info,
+    ...Colors.shadowSoft,
+    overflow: 'hidden',
+  },
+  helpHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.cardPadding,
+    backgroundColor: Colors.infoLight,
+  },
+  helpIcon: {
+    fontSize: 20,
+    marginRight: Spacing.sm,
+  },
+  helpTitle: {
+    ...Typography.subtitle,
+    color: Colors.textPrimary,
+    fontWeight: '700',
+    flex: 1,
+  },
+  helpToggle: {
+    fontSize: 24,
+    color: Colors.info,
+    fontWeight: '300',
+  },
+  helpToggleActive: {
+    color: Colors.infoDark,
+    fontWeight: '700',
+  },
+  helpContent: {
+    padding: Spacing.cardPadding,
+  },
+  helpSection: {
+    marginBottom: Spacing.md,
+  },
+  helpMethod: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: Spacing.radiusMedium,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: Spacing.sm,
+  },
+  helpMethodIcon: {
+    fontSize: 20,
+    marginRight: Spacing.md,
+  },
+  helpMethodContent: {
+    flex: 1,
+  },
+  helpMethodTitle: {
+    ...Typography.body,
+    color: Colors.textPrimary,
+    fontWeight: '600',
+    marginBottom: Spacing.xs,
+  },
+  helpMethodDesc: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
+  helpMethodToggle: {
+    fontSize: 18,
+    color: Colors.info,
+    fontWeight: '300',
+  },
+  helpDetail: {
+    padding: Spacing.md,
+    backgroundColor: Colors.infoLight,
+    borderRadius: Spacing.radiusSmall,
+    borderWidth: 1,
+    borderColor: Colors.info,
+    marginTop: Spacing.xs,
+  },
+  helpDetailText: {
+    ...Typography.body,
+    color: Colors.textPrimary,
+    lineHeight: 24,
+  },
+
+  // Recent Messages Card - Smart Defaults
+  recentMessagesCard: {
     marginHorizontal: Spacing.screenHorizontal,
     marginBottom: Spacing.md,
     backgroundColor: Colors.backgroundSecondary,
     borderRadius: Spacing.radiusLarge,
     padding: Spacing.cardPadding,
     borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadows.card,
+    borderColor: Colors.info,
+    ...Colors.shadowSoft,
   },
-  tipsTitle: {
+  recentHeader: {
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  recentIcon: {
+    fontSize: 24,
+    marginBottom: Spacing.xs,
+  },
+  recentTitle: {
     ...Typography.subtitle,
     color: Colors.textPrimary,
-    marginBottom: Spacing.md,
     fontWeight: '700',
+    marginBottom: Spacing.xs,
   },
-  tipsList: {
+  recentSubtitle: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+  },
+  recentList: {
     gap: Spacing.sm,
   },
-  tipItem: {
+  recentItem: {
+    backgroundColor: Colors.infoLight,
+    padding: Spacing.md,
+    borderRadius: Spacing.radiusMedium,
     flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  tipNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: Spacing.radiusRound,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.info,
+    ...Colors.shadowSoft,
+  },
+  recentEmoji: {
+    fontSize: 16,
     marginRight: Spacing.sm,
   },
-  tipNumberText: {
-    ...Typography.caption,
-    color: Colors.textInverse,
-    fontWeight: '700',
-    fontSize: 12,
-  },
-  tipText: {
+  recentText: {
     ...Typography.body,
     color: Colors.textPrimary,
     flex: 1,
   },
-  tipBold: {
+  recentArrow: {
+    fontSize: 18,
+    color: Colors.info,
     fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-
-  // Alternative Method
-  alternativeMethod: {
-    marginTop: Spacing.md,
-    paddingTop: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-  },
-  alternativeTitle: {
-    ...Typography.caption,
-    color: Colors.textSecondary,
-    fontWeight: '600',
-    marginBottom: Spacing.xs,
-  },
-  alternativeSteps: {
-    gap: Spacing.xs,
-  },
-  alternativeStep: {
-    ...Typography.caption,
-    color: Colors.textSecondary,
-    fontStyle: 'italic',
+    marginLeft: Spacing.sm,
   },
 
   // Premium Card
