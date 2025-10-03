@@ -8,7 +8,6 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Dimensions,
   Keyboard,
   TouchableOpacity,
 } from 'react-native';
@@ -22,25 +21,28 @@ import { useApp } from '../context/AppContext';
 import { analyzeMessage } from '../services/scamDetection';
 import { useShareIntentHandler, processSharedContent, SharedContent } from '../services/shareIntent';
 import { showScreenshotOptions, pickScreenshotForAnalysis, takePhotoForAnalysis, analyzeScreenshot } from '../services/screenshotAnalysis';
-import { showVoiceInputOptions, startVoiceRecognition, stopVoiceRecognition, VoiceResult } from '../services/voiceInput';
+import { showVoiceInputOptions, startVoiceRecognition, VoiceResult } from '../services/voiceInput';
 import { initializeAutoScreenshotDetection, startScreenshotMonitoring, showScreenshotAnalysisPrompt, analyzeScreenshotAutomatically } from '../services/autoScreenshotDetection';
-import { initializeSiriShortcuts, handleSiriShortcut } from '../services/siriShortcuts';
-import { Colors, Shadows } from '../theme/colors';
+import { initializeSiriShortcuts } from '../services/siriShortcuts';
+import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
-import { Responsive } from '../theme/responsive';
-import { Gradients, Animations } from '../theme/gradients';
-
-const { width: screenWidth } = Dimensions.get('window');
+import { useTheme } from '../context/ThemeContext';
 
 /**
- * Premium Home Screen - Sophisticated message checking interface
- * Elegant design with clear hierarchy and premium feel
+ * Home Screen - Modern, Professional, Accessible
+ *
+ * Design principles:
+ * - Clear visual hierarchy through elevation and spacing
+ * - Generous touch targets and readable text
+ * - Warm, professional aesthetic
+ * - Purposeful use of color and iconography
  */
 const HomeScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { subscription, addAnalysis } = useApp();
+  const { colors } = useTheme();
   const [messageText, setMessageText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -48,56 +50,40 @@ const HomeScreen = () => {
   const [currentScreenshotUri, setCurrentScreenshotUri] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState('');
   const [isAnalyzingScreenshot, setIsAnalyzingScreenshot] = useState(false);
-  const [recentMessages, setRecentMessages] = useState<string[]>([
-    'Hi Grandma, I need money for emergency surgery...',
-    'Congratulations! You won $1,000,000! Click here...',
-    'Your package delivery failed, update payment info...'
-  ]);
-  const [expandedHelp, setExpandedHelp] = useState<string | null>(null);
 
-  // Handle shared text from other apps
+  // Handle shared text
   useEffect(() => {
     const params = route.params as any;
     if (params?.sharedText) {
       setMessageText(params.sharedText);
-      // Auto-analyze shared content
       handleCheckMessage(params.sharedText);
     }
   }, [route.params]);
 
-  // Handle share intent using the hook
+  // Share intent handler
   const handleSharedContent = async (sharedContent: SharedContent) => {
-    console.log('Received shared content:', sharedContent);
-    
-    // Show a brief confirmation
     Alert.alert(
       'Message Received',
-      `Received content from ${sharedContent.sourceApp}. Analyzing for scams...`,
+      `Analyzing content from ${sharedContent.sourceApp}...`,
       [{ text: 'OK' }]
     );
-    
+
     try {
-      // Process the shared content
       const result = await processSharedContent(sharedContent);
       addAnalysis(result);
-      
-      // Navigate to result screen
       (navigation as any).navigate('Result', { result });
     } catch (error) {
-      console.error('Error processing shared content:', error);
-      Alert.alert('Error', 'Could not analyze the shared content. Please try again.', [{ text: 'OK' }]);
+      Alert.alert('Error', 'Could not analyze the shared content. Please try again.');
     }
   };
 
-  // Use the share intent hook
   useShareIntentHandler(handleSharedContent);
 
-  // Initialize auto screenshot detection
+  // Initialize features
   useEffect(() => {
-    const initializeAutoDetection = async () => {
+    const initializeFeatures = async () => {
       await initializeAutoScreenshotDetection();
-      
-      // Start monitoring for new screenshots
+
       const cleanup = startScreenshotMonitoring(
         (screenshotUri: string) => {
           showScreenshotAnalysisPrompt(
@@ -111,18 +97,13 @@ const HomeScreen = () => {
                     addAnalysis(result);
                     (navigation as any).navigate('Result', { result });
                   },
-                  (error: string) => {
-                    Alert.alert('Analysis Error', error);
-                  }
+                  (error: string) => Alert.alert('Analysis Error', error)
                 );
               } finally {
                 setIsAnalyzing(false);
               }
             },
-            () => {
-              // User dismissed the prompt
-              console.log('Screenshot analysis dismissed');
-            }
+            () => console.log('Screenshot analysis dismissed')
           );
         },
         { enabled: true, autoAnalyze: false, showNotification: true }
@@ -131,54 +112,42 @@ const HomeScreen = () => {
       return cleanup;
     };
 
-    initializeAutoDetection();
-    
-    // Initialize Siri Shortcuts
+    initializeFeatures();
     initializeSiriShortcuts();
   }, []);
 
   const handleCheckMessage = async (text?: string) => {
     const textToCheck = text || messageText;
-    
+
     if (!textToCheck.trim()) {
-      Alert.alert('No Message', 'Please enter a message to check.', [{ text: 'OK' }]);
+      Alert.alert('No Message', 'Please enter a message to check.');
       return;
     }
 
-    // Check message limit for free tier
-    if (subscription.tier === 'FREE') {
-      if (subscription.messageCheckCount >= subscription.monthlyLimit) {
-        Alert.alert(
-          'Limit Reached',
-          `You've used all ${subscription.monthlyLimit} free checks this month. Upgrade to Premium for unlimited checks.`,
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { 
-              text: 'Upgrade', 
-              onPress: () => navigation.navigate('Upgrade' as never) 
-            },
-          ]
-        );
-        return;
-      }
+    // Check message limit
+    if (subscription.tier === 'FREE' && subscription.messageCheckCount >= subscription.monthlyLimit) {
+      Alert.alert(
+        'Limit Reached',
+        `You've used all ${subscription.monthlyLimit} free checks this month. Upgrade to Premium for unlimited checks.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => navigation.navigate('Upgrade' as never) },
+        ]
+      );
+      return;
     }
 
-    // Dismiss keyboard first to prevent double-tap issue
     Keyboard.dismiss();
-    
-    // Small delay to ensure keyboard is dismissed
+
     setTimeout(async () => {
       setIsAnalyzing(true);
-
       try {
         const result = await analyzeMessage(textToCheck);
         addAnalysis(result);
-        
-        // Navigate to result screen
         (navigation as any).navigate('Result', { result });
-        setMessageText(''); // Clear input
+        setMessageText('');
       } catch (error) {
-        Alert.alert('Error', 'We could not check the message. Try again.', [{ text: 'OK' }]);
+        Alert.alert('Error', 'We could not check the message. Try again.');
       } finally {
         setIsAnalyzing(false);
       }
@@ -188,27 +157,21 @@ const HomeScreen = () => {
   const handleScreenshotAnalysis = async () => {
     try {
       const option = await showScreenshotOptions();
-      
       if (option === 'cancel') return;
-      
+
       let imageUri: string | null = null;
-      
-      if (option === 'camera') {
-        imageUri = await takePhotoForAnalysis();
-      } else if (option === 'library') {
-        imageUri = await pickScreenshotForAnalysis();
-      }
-      
+      if (option === 'camera') imageUri = await takePhotoForAnalysis();
+      else if (option === 'library') imageUri = await pickScreenshotForAnalysis();
+
       if (imageUri) {
         setCurrentScreenshotUri(imageUri);
         setExtractedText('');
         setScreenshotModalVisible(true);
-        
-        // Start analyzing the screenshot
         setIsAnalyzingScreenshot(true);
+
         const analysis = await analyzeScreenshot(imageUri);
         setIsAnalyzingScreenshot(false);
-        
+
         if (analysis.success && analysis.extractedText) {
           setExtractedText(analysis.extractedText);
         } else {
@@ -217,15 +180,14 @@ const HomeScreen = () => {
         }
       }
     } catch (error) {
-      console.error('Screenshot analysis error:', error);
-      Alert.alert('Error', 'Could not analyze the screenshot. Please try again.');
       setScreenshotModalVisible(false);
+      Alert.alert('Error', 'Could not analyze the screenshot. Please try again.');
     }
   };
 
   const handleScreenshotAnalyze = async () => {
     if (!extractedText.trim()) return;
-    
+
     setIsAnalyzing(true);
     try {
       const result = await analyzeMessage(extractedText);
@@ -239,40 +201,16 @@ const HomeScreen = () => {
     }
   };
 
-  const handleScreenshotRetake = () => {
-    setScreenshotModalVisible(false);
-    handleScreenshotAnalysis();
-  };
-
-  const handleQuickFill = (message: string) => {
-    setMessageText(message);
-    // Add gentle animation feedback
-    setTimeout(() => {
-      Alert.alert(
-        'Message Added',
-        'Message pasted successfully. Tap "Check Message" when ready.',
-        [{ text: 'OK' }]
-      );
-    }, 300);
-  };
-
-  const toggleHelp = (section: string) => {
-    setExpandedHelp(expandedHelp === section ? null : section);
-  };
-
   const handleVoiceInput = async () => {
     try {
       const option = await showVoiceInputOptions();
-      
       if (option === 'cancel') return;
-      
+
       if (option === 'voice') {
         setIsListening(true);
-        
         await startVoiceRecognition(
           (result: VoiceResult) => {
             setIsListening(false);
-            
             if (result.success && result.text) {
               setMessageText(result.text);
               Alert.alert(
@@ -284,7 +222,7 @@ const HomeScreen = () => {
                 ]
               );
             } else {
-              Alert.alert('Voice Input Failed', result.error || 'Could not understand what you said. Please try again.');
+              Alert.alert('Voice Input Failed', result.error || 'Could not understand what you said.');
             }
           },
           (error: string) => {
@@ -294,277 +232,156 @@ const HomeScreen = () => {
         );
       }
     } catch (error) {
-      console.error('Voice input error:', error);
       setIsListening(false);
       Alert.alert('Error', 'Could not start voice input. Please try again.');
     }
   };
 
-  const remainingChecks = subscription.tier === 'FREE' 
-    ? subscription.monthlyLimit - subscription.messageCheckCount 
+  const remainingChecks = subscription.tier === 'FREE'
+    ? subscription.monthlyLimit - subscription.messageCheckCount
     : -1;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Hero Section with enhanced visual interest */}
-          <LinearGradient
-            colors={Gradients.hero.colors}
-            start={Gradients.hero.start}
-            end={Gradients.hero.end}
-            style={styles.heroSection}
-          >
-            <View style={styles.heroIcon}>
-              <LinearGradient
-                colors={Colors.gradientPrimary}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.heroIconGradient}
-              >
-                <Text style={styles.heroEmoji}>🛡️</Text>
-              </LinearGradient>
+          {/* Header - Clear branding */}
+          <View style={styles.header}>
+            <View style={styles.brandContainer}>
+              <View style={[styles.logoContainer, { backgroundColor: colors.primaryLight }]}>
+                <Text style={styles.logoIcon}>🛡️</Text>
+              </View>
+              <Text style={[styles.brandName, { color: colors.textPrimary }]}>Elder Sentry</Text>
             </View>
-            <Text style={styles.heroTitle}>Elder Sentry</Text>
-            <Text style={styles.heroSubtitle}>
-              AI-powered protection for your peace of mind
+            <Text style={[styles.tagline, { color: colors.textSecondary }]}>
+              AI-powered protection from scams
             </Text>
 
-            {/* Status Badge with enhanced styling */}
-            <LinearGradient
-              colors={subscription.tier === 'PREMIUM'
-                ? Colors.gradientPremium
-                : ['#FFFFFF', '#F8FAFC']
-              }
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={[
-                styles.statusBadge,
-                subscription.tier === 'PREMIUM' && {
-                  borderColor: Colors.premium,
-                }
-              ]}
-            >
-              <Text style={styles.statusIcon}>
-                {subscription.tier === 'PREMIUM' ? '👑' : '✨'}
-              </Text>
-              <Text style={[
-                styles.statusText,
-                subscription.tier === 'PREMIUM' && styles.statusTextPremium
-              ]}>
+            {/* Status indicator */}
+            <View style={[
+              styles.statusBadge,
+              { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
+              subscription.tier === 'PREMIUM' && styles.statusBadgePremium
+            ]}>
+              <View style={styles.statusDot} />
+              <Text style={[styles.statusText, { color: colors.textSecondary }]}>
                 {subscription.tier === 'PREMIUM'
-                  ? 'Premium Protection Active'
-                  : `${remainingChecks} free checks remaining`
+                  ? 'Premium Active'
+                  : `${remainingChecks} Checks Remaining`
                 }
               </Text>
-            </LinearGradient>
-          </LinearGradient>
+            </View>
+          </View>
 
           {/* Main Action Card */}
-          <View style={styles.mainCard}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Check a Message</Text>
-              <Text style={styles.cardSubtitle}>
-                Paste any suspicious text, email, or message to analyze
-              </Text>
-            </View>
+          <View style={[styles.mainCard, { backgroundColor: colors.backgroundElevated }]}>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Check a Message</Text>
+            <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>
+              Enter any suspicious text, email, or phone call message below
+            </Text>
 
-            {/* Input Section */}
-            <View style={styles.inputSection}>
-              <TextInput
-                style={styles.messageInput}
-                multiline
-                numberOfLines={6}
-                placeholder="Paste your suspicious message here...&#10;&#10;💡 Tip: Use Share Sheet for easier checking!"
-                placeholderTextColor={Colors.textTertiary}
-                value={messageText}
-                onChangeText={setMessageText}
-                textAlignVertical="top"
-              />
-              
-              <AnalyzingButton
-                isAnalyzing={isAnalyzing}
-                onPress={() => handleCheckMessage()}
-                disabled={!messageText.trim()}
-              />
-              
-              {/* Voice Input Button */}
-              <View style={styles.voiceButton}>
-                <SeniorButton
-                  title={isListening ? "🎤 Listening..." : "🎤 Speak Message"}
+            <TextInput
+              style={[styles.messageInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.textPrimary }]}
+              multiline
+              numberOfLines={6}
+              placeholder="Paste or type the message here..."
+              placeholderTextColor={colors.textTertiary}
+              value={messageText}
+              onChangeText={setMessageText}
+              textAlignVertical="top"
+            />
+
+            <AnalyzingButton
+              isAnalyzing={isAnalyzing}
+              onPress={() => handleCheckMessage()}
+              disabled={!messageText.trim()}
+            />
+
+            {/* Alternative input methods */}
+            <View style={[styles.alternativeMethods, { borderTopColor: colors.border }]}>
+              <Text style={[styles.alternativeLabel, { color: colors.textSecondary }]}>Or use:</Text>
+              <View style={styles.methodButtons}>
+                <TouchableOpacity
+                  style={[styles.methodButton, { backgroundColor: colors.background, borderColor: colors.border }]}
                   onPress={handleVoiceInput}
-                  variant="secondary"
                   disabled={isAnalyzing || isListening}
-                />
-              </View>
-              
-              {/* Screenshot Analysis Button */}
-              <View style={styles.screenshotButton}>
-                <SeniorButton
-                  title="📸 Analyze Screenshot"
+                >
+                  <Text style={styles.methodIcon}>🎤</Text>
+                  <Text style={[styles.methodText, { color: colors.textPrimary }]}>Voice</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.methodButton, { backgroundColor: colors.background, borderColor: colors.border }]}
                   onPress={handleScreenshotAnalysis}
-                  variant="secondary"
                   disabled={isAnalyzing || isListening}
-                />
+                >
+                  <Text style={styles.methodIcon}>📸</Text>
+                  <Text style={[styles.methodText, { color: colors.textPrimary }]}>Screenshot</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
 
-          {/* Recent Messages Section - Smart Defaults */}
-          {recentMessages.length > 0 && !messageText && (
-            <View style={styles.recentMessagesCard}>
-              <View style={styles.recentHeader}>
-                <Text style={styles.recentIcon}>🕐</Text>
-                <Text style={styles.recentTitle}>Common Suspicious Messages</Text>
-                <Text style={styles.recentSubtitle}>Tap any message to check it</Text>
+          {/* Educational callout - Subtle, professional */}
+          <View style={[styles.educationalCard, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+            <View style={styles.educationalContent}>
+              <View style={[styles.educationalIconContainer, { backgroundColor: colors.primaryLight }]}>
+                <Text style={[styles.educationalIcon, { color: colors.primary }]}>→</Text>
               </View>
-              <View style={styles.recentList}>
-                {recentMessages.map((message, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.recentItem}
-                    onPress={() => handleQuickFill(message)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.recentEmoji}>⚠️</Text>
-                    <Text style={styles.recentText} numberOfLines={2}>
-                      {message}
-                    </Text>
-                    <Text style={styles.recentArrow}>→</Text>
-                  </TouchableOpacity>
-                ))}
+              <View style={styles.educationalTextContainer}>
+                <Text style={[styles.educationalTitle, { color: colors.textPrimary }]}>Quick Tip</Text>
+                <Text style={[styles.educationalText, { color: colors.textSecondary }]}>
+                  Share messages directly from Mail or Messages using the share button — we'll analyze them instantly.
+                </Text>
               </View>
             </View>
-          )}
-
-          {/* Contextual Help System - Progressive Disclosure */}
-          <View style={styles.helpCard}>
-            <TouchableOpacity
-              style={styles.helpHeader}
-              onPress={() => toggleHelp('main')}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.helpIcon}>❓</Text>
-              <Text style={styles.helpTitle}>How to Check Messages</Text>
-              <Text style={[
-                styles.helpToggle,
-                expandedHelp === 'main' && styles.helpToggleActive
-              ]}>
-                {expandedHelp === 'main' ? '−' : '+'}
-              </Text>
-            </TouchableOpacity>
-
-            {expandedHelp === 'main' && (
-              <View style={styles.helpContent}>
-                <View style={styles.helpSection}>
-                  <TouchableOpacity
-                    style={styles.helpMethod}
-                    onPress={() => toggleHelp('share')}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.helpMethodIcon}>📱</Text>
-                    <View style={styles.helpMethodContent}>
-                      <Text style={styles.helpMethodTitle}>Share from Messages/Mail</Text>
-                      <Text style={styles.helpMethodDesc}>Long-press → Share → Select Elder Sentry</Text>
-                    </View>
-                    <Text style={styles.helpMethodToggle}>
-                      {expandedHelp === 'share' ? '−' : '+'}
-                    </Text>
-                  </TouchableOpacity>
-
-                  {expandedHelp === 'share' && (
-                    <View style={styles.helpDetail}>
-                      <Text style={styles.helpDetailText}>
-                        • In Messages: Long-press the suspicious message{'\n'}
-                        • Tap "Share" button{'\n'}
-                        • Select "Elder Sentry" from the app list{'\n'}
-                        • Automatic analysis begins instantly!
-                      </Text>
-                    </View>
-                  )}
-                </View>
-
-                <View style={styles.helpSection}>
-                  <TouchableOpacity
-                    style={styles.helpMethod}
-                    onPress={() => toggleHelp('voice')}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.helpMethodIcon}>🎤</Text>
-                    <View style={styles.helpMethodContent}>
-                      <Text style={styles.helpMethodTitle}>Voice Input</Text>
-                      <Text style={styles.helpMethodDesc}>Speak the message out loud</Text>
-                    </View>
-                    <Text style={styles.helpMethodToggle}>
-                      {expandedHelp === 'voice' ? '−' : '+'}
-                    </Text>
-                  </TouchableOpacity>
-
-                  {expandedHelp === 'voice' && (
-                    <View style={styles.helpDetail}>
-                      <Text style={styles.helpDetailText}>
-                        • Tap "Speak Message" button{'\n'}
-                        • Say the suspicious text clearly{'\n'}
-                        • Confirm what you said{'\n'}
-                        • Analysis starts automatically!
-                      </Text>
-                    </View>
-                  )}
-                </View>
-
-                <View style={styles.helpSection}>
-                  <TouchableOpacity
-                    style={styles.helpMethod}
-                    onPress={() => toggleHelp('screenshot')}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.helpMethodIcon}>📸</Text>
-                    <View style={styles.helpMethodContent}>
-                      <Text style={styles.helpMethodTitle}>Screenshot Analysis</Text>
-                      <Text style={styles.helpMethodDesc}>For images with text</Text>
-                    </View>
-                    <Text style={styles.helpMethodToggle}>
-                      {expandedHelp === 'screenshot' ? '−' : '+'}
-                    </Text>
-                  </TouchableOpacity>
-
-                  {expandedHelp === 'screenshot' && (
-                    <View style={styles.helpDetail}>
-                      <Text style={styles.helpDetailText}>
-                        • Take screenshot of suspicious image{'\n'}
-                        • Tap "Analyze Screenshot"{'\n'}
-                        • Choose camera or photo library{'\n'}
-                        • Text is extracted and analyzed!
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-            )}
           </View>
 
-          {/* Premium CTA */}
+          {/* Premium CTA for free users - Sophisticated gradient */}
           {subscription.tier === 'FREE' && (
             <View style={styles.premiumCard}>
-              <View style={styles.premiumHeader}>
-                <Text style={styles.premiumIcon}>👑</Text>
-                <Text style={styles.premiumTitle}>Unlock Premium Protection</Text>
-              </View>
-              <Text style={styles.premiumDescription}>
-                Get unlimited checks, family alerts, and advanced scam detection
-              </Text>
-              <SeniorButton
-                title="Upgrade to Premium"
-                onPress={() => navigation.navigate('Upgrade' as never)}
-                variant="premium"
-                fullWidth
-              />
+              <LinearGradient
+                colors={['#0F766E', '#134E4A']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.premiumGradient}
+              >
+                <View style={styles.premiumContent}>
+                  <View style={styles.premiumBadgeContainer}>
+                    <Text style={styles.premiumBadge}>UPGRADE</Text>
+                  </View>
+                  <Text style={styles.premiumTitle}>Unlimited Protection</Text>
+                  <Text style={styles.premiumDescription}>
+                    Remove limits, add family members, get priority support
+                  </Text>
+                  <View style={styles.premiumFeatures}>
+                    <View style={styles.premiumFeature}>
+                      <Text style={styles.premiumFeatureIcon}>✓</Text>
+                      <Text style={styles.premiumFeatureText}>Unlimited checks</Text>
+                    </View>
+                    <View style={styles.premiumFeature}>
+                      <Text style={styles.premiumFeatureIcon}>✓</Text>
+                      <Text style={styles.premiumFeatureText}>Family alerts</Text>
+                    </View>
+                    <View style={styles.premiumFeature}>
+                      <Text style={styles.premiumFeatureIcon}>✓</Text>
+                      <Text style={styles.premiumFeatureText}>Priority support</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.premiumButton}
+                    onPress={() => navigation.navigate('Upgrade' as never)}
+                  >
+                    <Text style={styles.premiumButtonText}>View Plans</Text>
+                  </TouchableOpacity>
+                </View>
+              </LinearGradient>
             </View>
           )}
         </ScrollView>
@@ -578,7 +395,10 @@ const HomeScreen = () => {
         isAnalyzing={isAnalyzingScreenshot}
         onClose={() => setScreenshotModalVisible(false)}
         onAnalyze={handleScreenshotAnalyze}
-        onRetake={handleScreenshotRetake}
+        onRetake={() => {
+          setScreenshotModalVisible(false);
+          handleScreenshotAnalysis();
+        }}
       />
     </SafeAreaView>
   );
@@ -587,305 +407,232 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: Spacing.massive,
+    paddingBottom: 40,
   },
 
-  // Hero Section
-  heroSection: {
-    alignItems: 'center',
-    paddingHorizontal: Spacing.screenHorizontal,
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.lg,
-    borderBottomLeftRadius: Spacing.radiusLarge,
-    borderBottomRightRadius: Spacing.radiusLarge,
-    marginHorizontal: Spacing.screenHorizontal,
-  },
-  heroIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: Spacing.radiusLarge,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-    ...Colors.shadowStrong,
-  },
-  heroIconGradient: {
-    width: '100%',
-    height: '100%',
-    borderRadius: Spacing.radiusLarge,
-    justifyContent: 'center',
+  // Header
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 24,
     alignItems: 'center',
   },
-  heroEmoji: {
-    fontSize: 32,
-    color: Colors.textInverse,
-  },
-  heroTitle: {
-    ...Typography.display,
-    color: Colors.textPrimary,
-    marginBottom: Spacing.xs,
-    textAlign: 'center',
-    fontWeight: '700',
-  },
-  heroSubtitle: {
-    ...Typography.body,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: Spacing.md,
-  },
-  statusBadge: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderRadius: Spacing.radiusLarge,
+  brandContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border, // Will be overridden inline for premium
-    ...Colors.shadowSoft,
+    marginBottom: 8,
   },
-  statusIcon: {
-    fontSize: 18,
-    marginRight: Spacing.sm,
+  logoContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  logoIcon: {
+    fontSize: 24,
+  },
+  brandName: {
+    ...Typography.titleLarge,
+  },
+  tagline: {
+    ...Typography.body,
+    marginBottom: 16,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  statusBadgePremium: {
+    backgroundColor: Colors.accentLight,
+    borderColor: Colors.accent,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.success,
+    marginRight: 8,
   },
   statusText: {
-    ...Typography.body,
-    color: Colors.textPrimary,
-    fontWeight: '600',
-  },
-  statusTextPremium: {
-    color: Colors.premiumDark,
-    fontWeight: '700',
+    ...Typography.caption,
+    fontWeight: '500',
   },
 
-  // Main Action Card
+  // Main Card
   mainCard: {
-    marginHorizontal: Spacing.screenHorizontal,
-    marginBottom: Spacing.md,
-    backgroundColor: Colors.backgroundSecondary,
-    borderRadius: Spacing.radiusLarge,
-    padding: Spacing.cardPadding,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Colors.shadowStrong,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  cardHeader: {
-    marginBottom: Spacing.md,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    padding: 24,
+    borderRadius: 16,
+    ...Colors.shadowMd,
   },
   cardTitle: {
-    ...Typography.title,
-    color: Colors.textPrimary,
-    marginBottom: Spacing.xs,
-    fontWeight: '700',
+    ...Typography.titleLarge,
+    marginBottom: 4,
   },
   cardSubtitle: {
     ...Typography.body,
-    color: Colors.textSecondary,
-  },
-  inputSection: {
-    gap: Spacing.md,
+    marginBottom: 20,
   },
   messageInput: {
-    ...Typography.body,
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Spacing.radiusMedium,
-    padding: Spacing.md,
-    minHeight: 120,
-    color: Colors.textPrimary,
+    ...Typography.bodyLarge,
+    borderWidth: 2,
+    borderRadius: 12,
+    padding: 16,
+    minHeight: 140,
     textAlignVertical: 'top',
+    marginBottom: 16,
   },
-  voiceButton: {
-    marginTop: Spacing.sm,
+  alternativeMethods: {
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
   },
-  screenshotButton: {
-    marginTop: Spacing.sm,
+  alternativeLabel: {
+    ...Typography.caption,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  methodButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  methodButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderWidth: 2,
+    borderRadius: 12,
+  },
+  methodIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  methodText: {
+    ...Typography.bodyMedium,
+    fontWeight: '500',
   },
 
-  // Contextual Help Card - Progressive Disclosure
-  helpCard: {
-    marginHorizontal: Spacing.screenHorizontal,
-    marginBottom: Spacing.md,
-    backgroundColor: Colors.backgroundSecondary,
-    borderRadius: Spacing.radiusLarge,
+  // Educational Card - Minimal, professional
+  educationalCard: {
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.info,
-    ...Colors.shadowSoft,
-    overflow: 'hidden',
   },
-  helpHeader: {
+  educationalContent: {
     flexDirection: 'row',
+    padding: 20,
+    alignItems: 'flex-start',
+  },
+  educationalIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.cardPadding,
-    backgroundColor: Colors.infoLight,
+    marginRight: 16,
   },
-  helpIcon: {
-    fontSize: 20,
-    marginRight: Spacing.sm,
-  },
-  helpTitle: {
-    ...Typography.subtitle,
-    color: Colors.textPrimary,
-    fontWeight: '700',
-    flex: 1,
-  },
-  helpToggle: {
-    fontSize: 24,
-    color: Colors.info,
-    fontWeight: '300',
-  },
-  helpToggleActive: {
-    color: Colors.infoDark,
-    fontWeight: '700',
-  },
-  helpContent: {
-    padding: Spacing.cardPadding,
-  },
-  helpSection: {
-    marginBottom: Spacing.md,
-  },
-  helpMethod: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    backgroundColor: Colors.white,
-    borderRadius: Spacing.radiusMedium,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: Spacing.sm,
-  },
-  helpMethodIcon: {
-    fontSize: 20,
-    marginRight: Spacing.md,
-  },
-  helpMethodContent: {
-    flex: 1,
-  },
-  helpMethodTitle: {
-    ...Typography.body,
-    color: Colors.textPrimary,
+  educationalIcon: {
+    fontSize: 16,
     fontWeight: '600',
-    marginBottom: Spacing.xs,
   },
-  helpMethodDesc: {
-    ...Typography.caption,
-    color: Colors.textSecondary,
+  educationalTextContainer: {
+    flex: 1,
   },
-  helpMethodToggle: {
-    fontSize: 18,
-    color: Colors.info,
-    fontWeight: '300',
-  },
-  helpDetail: {
-    padding: Spacing.md,
-    backgroundColor: Colors.infoLight,
-    borderRadius: Spacing.radiusSmall,
-    borderWidth: 1,
-    borderColor: Colors.info,
-    marginTop: Spacing.xs,
-  },
-  helpDetailText: {
+  educationalTitle: {
     ...Typography.body,
-    color: Colors.textPrimary,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  educationalText: {
+    ...Typography.bodyMedium,
     lineHeight: 24,
   },
 
-  // Recent Messages Card - Smart Defaults
-  recentMessagesCard: {
-    marginHorizontal: Spacing.screenHorizontal,
-    marginBottom: Spacing.md,
-    backgroundColor: Colors.backgroundSecondary,
-    borderRadius: Spacing.radiusLarge,
-    padding: Spacing.cardPadding,
-    borderWidth: 1,
-    borderColor: Colors.info,
-    ...Colors.shadowSoft,
-  },
-  recentHeader: {
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  recentIcon: {
-    fontSize: 24,
-    marginBottom: Spacing.xs,
-  },
-  recentTitle: {
-    ...Typography.subtitle,
-    color: Colors.textPrimary,
-    fontWeight: '700',
-    marginBottom: Spacing.xs,
-  },
-  recentSubtitle: {
-    ...Typography.caption,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-  },
-  recentList: {
-    gap: Spacing.sm,
-  },
-  recentItem: {
-    backgroundColor: Colors.infoLight,
-    padding: Spacing.md,
-    borderRadius: Spacing.radiusMedium,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.info,
-    ...Colors.shadowSoft,
-  },
-  recentEmoji: {
-    fontSize: 16,
-    marginRight: Spacing.sm,
-  },
-  recentText: {
-    ...Typography.body,
-    color: Colors.textPrimary,
-    flex: 1,
-  },
-  recentArrow: {
-    fontSize: 18,
-    color: Colors.info,
-    fontWeight: '700',
-    marginLeft: Spacing.sm,
-  },
-
-  // Premium Card
+  // Premium Card - Sophisticated, dark gradient
   premiumCard: {
-    marginHorizontal: Spacing.screenHorizontal,
-    backgroundColor: Colors.premiumLight,
-    borderRadius: Spacing.radiusLarge,
-    padding: Spacing.cardPadding,
-    borderWidth: 1,
-    borderColor: Colors.premium,
-    ...Shadows.card,
+    marginHorizontal: 20,
+    borderRadius: 16,
+    overflow: 'hidden',
+    ...Colors.shadowLg,
   },
-  premiumHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
+  premiumGradient: {
+    padding: 28,
   },
-  premiumIcon: {
-    fontSize: Spacing.iconMedium,
-    marginRight: Spacing.xs,
+  premiumContent: {
+    alignItems: 'flex-start',
+  },
+  premiumBadgeContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 6,
+    marginBottom: 16,
+  },
+  premiumBadge: {
+    fontSize: 11,
+    color: Colors.white,
+    fontWeight: '700',
+    letterSpacing: 1.5,
   },
   premiumTitle: {
-    ...Typography.subtitle,
-    color: Colors.premiumDark,
-    fontWeight: '700',
+    ...Typography.titleLarge,
+    color: Colors.white,
+    marginBottom: 8,
   },
   premiumDescription: {
     ...Typography.body,
-    color: Colors.premiumDark,
-    marginBottom: Spacing.md,
+    color: 'rgba(255,255,255,0.85)',
+    marginBottom: 24,
+    lineHeight: 26,
+  },
+  premiumFeatures: {
+    marginBottom: 24,
+    gap: 12,
+  },
+  premiumFeature: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  premiumFeatureIcon: {
+    fontSize: 16,
+    color: '#6EE7B7',
+    marginRight: 12,
+    fontWeight: '600',
+  },
+  premiumFeatureText: {
+    ...Typography.bodyMedium,
+    color: Colors.white,
+    fontWeight: '500',
+  },
+  premiumButton: {
+    backgroundColor: Colors.white,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    ...Colors.shadowSm,
+  },
+  premiumButtonText: {
+    ...Typography.body,
+    color: Colors.primary,
+    fontWeight: '600',
   },
 });
 

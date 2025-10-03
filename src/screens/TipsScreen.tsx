@@ -15,6 +15,19 @@ import { Colors, Shadows } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
 import { Responsive } from '../theme/responsive';
+import { useTheme } from '../context/ThemeContext';
+import {
+  BookOpenIcon,
+  InboxIcon,
+  AlertTriangleIcon,
+  BuildingIcon,
+  FishIcon,
+  HeartBrokenIcon,
+  DollarSignIcon,
+  MonitorIcon,
+  ShieldIcon,
+  ZapIcon,
+} from '../components/Icons';
 
 /**
  * Tips Screen - Scam education library with enhanced styling
@@ -22,6 +35,7 @@ import { Responsive } from '../theme/responsive';
  */
 const TipsScreen = () => {
   const [selectedArticle, setSelectedArticle] = useState<EducationArticle | null>(null);
+  const { colors } = useTheme();
 
   const getArticleColor = (scamType: string) => {
     if (scamType.includes('Grandparent')) return Colors.danger;
@@ -33,15 +47,16 @@ const TipsScreen = () => {
     return Colors.primary;
   };
 
-  const getArticleIcon = (scamType: string) => {
-    if (scamType.includes('Grandparent')) return '👴';
-    if (scamType.includes('Government')) return '🏛️';
-    if (scamType.includes('Phishing')) return '🎣';
-    if (scamType.includes('Romance')) return '💔';
-    if (scamType.includes('Lottery')) return '🎰';
-    if (scamType.includes('Tech Support')) return '💻';
-    if (scamType.includes('General')) return '🛡️';
-    return '⚠️';
+  const getArticleIcon = (scamType: string, color: string) => {
+    const size = 24;
+    if (scamType.includes('Grandparent')) return <AlertTriangleIcon size={size} color={color} />;
+    if (scamType.includes('Government')) return <BuildingIcon size={size} color={color} />;
+    if (scamType.includes('Phishing')) return <FishIcon size={size} color={color} />;
+    if (scamType.includes('Romance')) return <HeartBrokenIcon size={size} color={color} />;
+    if (scamType.includes('Lottery')) return <DollarSignIcon size={size} color={color} />;
+    if (scamType.includes('Tech Support')) return <MonitorIcon size={size} color={color} />;
+    if (scamType.includes('General')) return <ShieldIcon size={size} color={color} />;
+    return <AlertTriangleIcon size={size} color={color} />;
   };
 
   const formatArticleContent = (content: string) => {
@@ -58,12 +73,12 @@ const TipsScreen = () => {
       return (
         <View key={index} style={styles.contentSection}>
           {isHeader ? (
-            <Text style={styles.sectionHeader}>{header}</Text>
+            <Text style={[styles.sectionHeader, { color: colors.primary }]}>{header}</Text>
           ) : (
-            <Text style={styles.contentText}>{header}</Text>
+            <Text style={[styles.contentText, { color: colors.textPrimary }]}>{header}</Text>
           )}
           {body.map((line, lineIndex) => (
-            <Text key={lineIndex} style={styles.contentText}>
+            <Text key={lineIndex} style={[styles.contentText, { color: colors.textPrimary }]}>
               {line}
             </Text>
           ))}
@@ -73,18 +88,18 @@ const TipsScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.headerIcon}>
-            <Text style={styles.headerEmoji}>💡</Text>
+          <View style={[styles.headerIconContainer, { backgroundColor: colors.primaryLight }]}>
+            <BookOpenIcon size={48} color={colors.primary} />
           </View>
-          <Text style={styles.headerTitle}>Scam Protection Tips</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Scam Protection Tips</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
             Learn how to spot and avoid common scams targeting seniors
           </Text>
         </View>
@@ -93,28 +108,23 @@ const TipsScreen = () => {
         <View style={styles.articlesContainer}>
           {EDUCATION_ARTICLES.map((article) => {
             const accentColor = getArticleColor(article.scamType);
-            const icon = getArticleIcon(article.scamType);
+            const icon = getArticleIcon(article.scamType, accentColor);
 
             return (
               <TouchableOpacity
                 key={article.id}
-                style={[styles.articleCard, { borderLeftColor: accentColor }]}
+                style={[styles.articleCard, { borderColor: accentColor, backgroundColor: colors.backgroundSecondary }]}
                 onPress={() => setSelectedArticle(article)}
                 activeOpacity={0.7}
               >
-                <View style={styles.articleHeader}>
-                  <View style={[styles.articleIconBadge, { backgroundColor: accentColor + '20' }]}>
-                    <Text style={styles.articleIcon}>{icon}</Text>
-                  </View>
-                  <View style={styles.articleInfo}>
-                    <Text style={styles.articleTitle}>{article.title}</Text>
-                    <View style={styles.articleMeta}>
-                      <Text style={styles.readTime}>📖 {article.readTime} min read</Text>
-                    </View>
-                  </View>
+                <View style={[styles.articleIconContainer, { backgroundColor: accentColor + '15' }]}>
+                  {icon}
                 </View>
-                <View style={styles.articleFooter}>
-                  <Text style={styles.readMoreText}>Tap to read full guide →</Text>
+                <View style={styles.articleInfo}>
+                  <Text style={[styles.articleTitle, { color: colors.textPrimary }]}>{article.title}</Text>
+                  <View style={styles.articleMeta}>
+                    <Text style={[styles.readTime, { color: colors.textSecondary }]}>{article.readTime} min read</Text>
+                  </View>
                 </View>
               </TouchableOpacity>
             );
@@ -122,24 +132,27 @@ const TipsScreen = () => {
         </View>
 
         {/* Quick Safety Tips Card */}
-        <View style={styles.quickTipsCard}>
-          <Text style={styles.quickTipsTitle}>⚡ Quick Safety Rules</Text>
+        <View style={[styles.quickTipsCard, { backgroundColor: colors.backgroundSecondary }]}>
+          <View style={styles.quickTipsHeader}>
+            <ZapIcon size={24} color={Colors.success} />
+            <Text style={[styles.quickTipsTitle, { color: colors.textPrimary }]}>Quick Safety Rules</Text>
+          </View>
           <View style={styles.quickTipsList}>
-            <View style={styles.quickTip}>
-              <Text style={styles.quickTipIcon}>🛑</Text>
-              <Text style={styles.quickTipText}>Never rush - scammers use urgency</Text>
+            <View style={[styles.quickTip, { backgroundColor: colors.background }]}>
+              <View style={[styles.quickTipDot, { backgroundColor: Colors.success }]} />
+              <Text style={[styles.quickTipText, { color: colors.textPrimary }]}>Never rush - scammers use urgency</Text>
             </View>
-            <View style={styles.quickTip}>
-              <Text style={styles.quickTipIcon}>📞</Text>
-              <Text style={styles.quickTipText}>Verify by calling known numbers</Text>
+            <View style={[styles.quickTip, { backgroundColor: colors.background }]}>
+              <View style={[styles.quickTipDot, { backgroundColor: Colors.success }]} />
+              <Text style={[styles.quickTipText, { color: colors.textPrimary }]}>Verify by calling known numbers</Text>
             </View>
-            <View style={styles.quickTip}>
-              <Text style={styles.quickTipIcon}>💳</Text>
-              <Text style={styles.quickTipText}>Never pay with gift cards</Text>
+            <View style={[styles.quickTip, { backgroundColor: colors.background }]}>
+              <View style={[styles.quickTipDot, { backgroundColor: Colors.success }]} />
+              <Text style={[styles.quickTipText, { color: colors.textPrimary }]}>Never pay with gift cards</Text>
             </View>
-            <View style={styles.quickTip}>
-              <Text style={styles.quickTipIcon}>👨‍👩‍👧‍👦</Text>
-              <Text style={styles.quickTipText}>Ask family before sending money</Text>
+            <View style={[styles.quickTip, { backgroundColor: colors.background }]}>
+              <View style={[styles.quickTipDot, { backgroundColor: Colors.success }]} />
+              <Text style={[styles.quickTipText, { color: colors.textPrimary }]}>Ask family before sending money</Text>
             </View>
           </View>
         </View>
@@ -151,7 +164,7 @@ const TipsScreen = () => {
         animationType="slide"
         onRequestClose={() => setSelectedArticle(null)}
       >
-        <SafeAreaView style={styles.modalContainer}>
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.background }]}>
           <BackButton onPress={() => setSelectedArticle(null)} />
 
           {selectedArticle && (
@@ -164,10 +177,13 @@ const TipsScreen = () => {
                 styles.modalHeader,
                 { backgroundColor: getArticleColor(selectedArticle.scamType) + '15' }
               ]}>
-                <Text style={styles.modalIcon}>
-                  {getArticleIcon(selectedArticle.scamType)}
-                </Text>
-                <Text style={styles.modalTitle}>{selectedArticle.title}</Text>
+                <View style={[
+                  styles.modalIconContainer,
+                  { backgroundColor: getArticleColor(selectedArticle.scamType) + '20' }
+                ]}>
+                  {getArticleIcon(selectedArticle.scamType, getArticleColor(selectedArticle.scamType))}
+                </View>
+                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>{selectedArticle.title}</Text>
                 <View style={styles.modalMetaRow}>
                   <Text style={[
                     styles.modalScamType,
@@ -175,8 +191,8 @@ const TipsScreen = () => {
                   ]}>
                     {selectedArticle.scamType}
                   </Text>
-                  <Text style={styles.modalReadTime}>
-                    📖 {selectedArticle.readTime} minute read
+                  <Text style={[styles.modalReadTime, { color: colors.textSecondary }]}>
+                    {selectedArticle.readTime} minute read
                   </Text>
                 </View>
               </View>
@@ -188,9 +204,12 @@ const TipsScreen = () => {
 
               {/* Bottom CTA */}
               <View style={styles.modalFooter}>
-                <View style={styles.reminderCard}>
-                  <Text style={styles.reminderIcon}>💡</Text>
-                  <Text style={styles.reminderText}>
+                <View style={[styles.reminderCard, { backgroundColor: Colors.primaryLight }]}>
+                  <View style={styles.reminderHeader}>
+                    <ShieldIcon size={20} color={Colors.primary} />
+                    <Text style={[styles.reminderTitle, { color: Colors.primary }]}>Remember</Text>
+                  </View>
+                  <Text style={[styles.reminderText, { color: Colors.primary }]}>
                     When in doubt, use Elder Sentry to check any suspicious message before responding!
                   </Text>
                 </View>
@@ -206,7 +225,6 @@ const TipsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   scrollContent: {
     paddingBottom: Spacing.massive,
@@ -219,29 +237,23 @@ const styles = StyleSheet.create({
     paddingTop: Responsive.isTablet ? Spacing.huge : Spacing.xl,
     paddingBottom: Spacing.xl,
   },
-  headerIcon: {
-    width: Responsive.isTablet ? 100 : 80,
-    height: Responsive.isTablet ? 100 : 80,
-    borderRadius: Spacing.radiusRound,
-    backgroundColor: Colors.primaryLight,
+  headerIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.lg,
-    ...Shadows.card,
-  },
-  headerEmoji: {
-    fontSize: Responsive.isTablet ? Spacing.iconEnormous : Spacing.iconMassive,
+    ...Shadows.md,
   },
   headerTitle: {
     ...Typography.largeTitle,
-    color: Colors.textPrimary,
     marginBottom: Spacing.md,
     textAlign: 'center',
     fontWeight: '700',
   },
   headerSubtitle: {
     ...Typography.body,
-    color: Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: Spacing.lg,
     lineHeight: 26,
@@ -253,36 +265,26 @@ const styles = StyleSheet.create({
     gap: Spacing.lg,
   },
   articleCard: {
-    backgroundColor: Colors.backgroundSecondary,
-    borderRadius: Spacing.radiusLarge,
-    padding: Spacing.base,
-    borderLeftWidth: 4,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadows.card,
-  },
-  articleHeader: {
     flexDirection: 'row',
-    marginBottom: Spacing.md,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.lg,
+    borderWidth: 2,
+    ...Shadows.card,
+    alignItems: 'center',
   },
-  articleIconBadge: {
-    width: 60,
-    height: 60,
-    borderRadius: Spacing.radiusMedium,
+  articleIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.md,
   },
-  articleIcon: {
-    fontSize: Spacing.iconLarge,
-  },
   articleInfo: {
     flex: 1,
-    justifyContent: 'center',
   },
   articleTitle: {
     ...Typography.subtitle,
-    color: Colors.textPrimary,
     marginBottom: Spacing.xs,
     fontWeight: '700',
   },
@@ -292,35 +294,25 @@ const styles = StyleSheet.create({
   },
   readTime: {
     ...Typography.caption,
-    color: Colors.textSecondary,
-  },
-  articleFooter: {
-    marginTop: Spacing.sm,
-    paddingTop: Spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    alignItems: 'center',
-  },
-  readMoreText: {
-    ...Typography.body,
-    color: Colors.primary,
-    fontWeight: '600',
   },
 
   // Quick Tips Card
   quickTipsCard: {
     marginHorizontal: Responsive.getScreenMargin(),
     marginTop: Spacing.xl,
-    backgroundColor: Colors.successLight,
     borderRadius: Spacing.radiusXLarge,
     padding: Spacing.cardPaddingLarge,
     borderWidth: 2,
     borderColor: Colors.success,
   },
+  quickTipsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
   quickTipsTitle: {
     ...Typography.title,
-    color: Colors.successDark,
-    marginBottom: Spacing.md,
     fontWeight: '700',
   },
   quickTipsList: {
@@ -329,25 +321,24 @@ const styles = StyleSheet.create({
   quickTip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.white,
     padding: Spacing.md,
     borderRadius: Spacing.radiusMedium,
   },
-  quickTipIcon: {
-    fontSize: Spacing.iconMedium,
+  quickTipDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     marginRight: Spacing.md,
   },
   quickTipText: {
     ...Typography.body,
-    color: Colors.textPrimary,
-    flex: 1,
     fontWeight: '500',
+    flex: 1,
   },
 
   // Modal
   modalContainer: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   modalContent: {
     paddingBottom: Spacing.enormous,
@@ -358,13 +349,17 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.huge,
     paddingBottom: Spacing.xl,
   },
-  modalIcon: {
-    fontSize: Spacing.iconEnormous,
+  modalIconContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: Spacing.lg,
+    ...Shadows.md,
   },
   modalTitle: {
     ...Typography.largeTitle,
-    color: Colors.textPrimary,
     marginBottom: Spacing.lg,
     textAlign: 'center',
     fontWeight: '700',
@@ -381,7 +376,6 @@ const styles = StyleSheet.create({
   },
   modalReadTime: {
     ...Typography.callout,
-    color: Colors.textSecondary,
   },
   modalBody: {
     paddingHorizontal: Responsive.getScreenMargin(),
@@ -391,7 +385,6 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     ...Typography.subtitle,
-    color: Colors.primary,
     fontWeight: '700',
     marginBottom: Spacing.md,
     textTransform: 'uppercase',
@@ -399,7 +392,6 @@ const styles = StyleSheet.create({
   },
   contentText: {
     ...Typography.bodyLarge,
-    color: Colors.textPrimary,
     lineHeight: 32,
     marginBottom: Spacing.sm,
   },
@@ -408,23 +400,24 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xl,
   },
   reminderCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.primaryLight,
     padding: Spacing.lg,
     borderRadius: Spacing.radiusLarge,
     borderWidth: 2,
     borderColor: Colors.primary,
   },
-  reminderIcon: {
-    fontSize: Spacing.iconLarge,
-    marginRight: Spacing.md,
+  reminderHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  reminderTitle: {
+    ...Typography.subtitle,
+    fontWeight: '700',
   },
   reminderText: {
     ...Typography.body,
-    color: Colors.primary,
-    flex: 1,
-    fontWeight: '600',
+    fontWeight: '500',
     lineHeight: 26,
   },
 });

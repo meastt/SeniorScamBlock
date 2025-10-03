@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as Linking from 'expo-linking';
 import MainNavigator from './src/navigation/MainNavigator';
 import { AppProvider } from './src/context/AppContext';
+import { ThemeProvider } from './src/context/ThemeContext';
 
 export default function App() {
   const navigationRef = useRef<any>(null);
@@ -40,12 +41,14 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <AppProvider>
-        <NavigationContainer ref={navigationRef}>
-          <MainNavigator />
-          <StatusBar style="dark" />
-        </NavigationContainer>
-      </AppProvider>
+      <ThemeProvider>
+        <AppProvider>
+          <NavigationContainer ref={navigationRef}>
+            <MainNavigator />
+            <StatusBar style="auto" />
+          </NavigationContainer>
+        </AppProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

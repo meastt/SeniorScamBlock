@@ -38,9 +38,9 @@ export const Gradients = {
     locations: [0, 1],
   },
 
-  // Hero section gradient - warm and welcoming
+  // Hero section gradient - sophisticated elegance
   hero: {
-    colors: ['#FAF9F7', '#F5F3F0'],
+    colors: ['#F8F9FA', '#E9ECEF'], // Clean white to soft slate
     start: { x: 0, y: 0 },
     end: { x: 1, y: 1 },
     locations: [0, 1],

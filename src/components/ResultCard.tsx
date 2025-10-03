@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ScamRiskLevel } from '../types';
-import { Colors, Shadows } from '../theme/colors';
+import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
-import { Responsive } from '../theme/responsive';
+import { AlertTriangleIcon, ZapIcon, CheckIcon } from './Icons';
+import { useTheme } from '../context/ThemeContext';
 
 interface ResultCardProps {
   riskLevel: ScamRiskLevel;
@@ -12,31 +14,42 @@ interface ResultCardProps {
 }
 
 /**
- * Clear result display with proper visual hierarchy
+ * Result Card - Professional, Clear, Immediate Understanding
+ *
+ * Design principles:
+ * - Instant visual recognition through color + iconography
+ * - Clear hierarchy: verdict first, explanation second
+ * - Appropriate emotional weight for each risk level
+ * - Accessible, senior-friendly presentation
  */
 export const ResultCard: React.FC<ResultCardProps> = ({ riskLevel, explanation }) => {
+  const { colors } = useTheme();
+
   const getResultConfig = () => {
     switch (riskLevel) {
       case 'RED':
         return {
-          color: Colors.danger,
-          backgroundColor: Colors.dangerLight,
-          icon: '⚠️',
-          label: 'High Risk - Likely Scam',
+          borderColor: Colors.danger,
+          iconBg: Colors.danger,
+          icon: <AlertTriangleIcon size={28} color="#FFFFFF" />,
+          title: 'High Risk',
+          subtitle: 'Likely a Scam',
         };
       case 'YELLOW':
         return {
-          color: Colors.warning,
-          backgroundColor: Colors.warningLight,
-          icon: '⚡',
-          label: 'Suspicious - Be Careful',
+          borderColor: Colors.warning,
+          iconBg: Colors.warning,
+          icon: <ZapIcon size={28} color="#FFFFFF" />,
+          title: 'Suspicious',
+          subtitle: 'Proceed with Caution',
         };
       case 'GREEN':
         return {
-          color: Colors.success,
-          backgroundColor: Colors.successLight,
-          icon: '✓',
-          label: 'Appears Safe',
+          borderColor: Colors.success,
+          iconBg: Colors.success,
+          icon: <CheckIcon size={28} color="#FFFFFF" />,
+          title: 'Appears Safe',
+          subtitle: 'Low Risk Detected',
         };
     }
   };
@@ -44,46 +57,117 @@ export const ResultCard: React.FC<ResultCardProps> = ({ riskLevel, explanation }
   const config = getResultConfig();
 
   return (
-    <View style={[styles.container, {
-      backgroundColor: config.backgroundColor,
-      borderLeftColor: config.color,
-    }]}>
-      <View style={styles.header}>
-        <Text style={styles.icon}>{config.icon}</Text>
-        <Text style={[styles.label, { color: config.color }]}>{config.label}</Text>
-      </View>
+    <View style={styles.container}>
+      <View style={[styles.card, { backgroundColor: colors.backgroundSecondary, borderColor: config.borderColor }]}>
+        {/* Verdict Header */}
+        <View style={styles.header}>
+          <View style={[styles.iconContainer, { backgroundColor: config.iconBg }]}>
+            {config.icon}
+          </View>
+          <View style={styles.verdictContainer}>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>
+              {config.title}
+            </Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              {config.subtitle}
+            </Text>
+          </View>
+        </View>
 
-      <Text style={styles.explanation}>{explanation}</Text>
+        {/* Explanation */}
+        <View style={styles.explanationContainer}>
+          <Text style={[styles.explanationLabel, { color: colors.textSecondary }]}>Analysis:</Text>
+          <Text style={[styles.explanation, { color: colors.textPrimary }]}>{explanation}</Text>
+        </View>
+
+        {/* Action hint */}
+        {riskLevel === 'RED' && (
+          <View style={[styles.actionHint, { backgroundColor: colors.background }]}>
+            <Text style={[styles.actionText, { color: colors.textPrimary }]}>
+              Do not respond or click any links. Delete this message.
+            </Text>
+          </View>
+        )}
+        {riskLevel === 'YELLOW' && (
+          <View style={[styles.actionHint, { backgroundColor: colors.background }]}>
+            <Text style={[styles.actionText, { color: colors.textPrimary }]}>
+              Verify independently before taking any action.
+            </Text>
+          </View>
+        )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.backgroundSecondary,
-    borderRadius: Spacing.radiusLarge,
-    padding: Spacing.cardPadding,
-    marginVertical: Spacing.md,
-    marginHorizontal: Spacing.screenHorizontal,
-    borderLeftWidth: 4,
-    ...Shadows.card,
+    marginVertical: 12,
+    marginHorizontal: 20,
   },
+  card: {
+    borderRadius: 16,
+    borderWidth: 3,
+    overflow: 'hidden',
+    ...Colors.shadowMd,
+  },
+
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    padding: 24,
+    paddingBottom: 20,
   },
-  icon: {
-    fontSize: Spacing.iconLarge,
-    marginRight: Spacing.sm,
+  iconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+    ...Colors.shadowSm,
   },
-  label: {
-    ...Typography.title,
-    fontWeight: '700',
+  verdictContainer: {
     flex: 1,
   },
-  explanation: {
+  title: {
+    ...Typography.titleLarge,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  subtitle: {
     ...Typography.body,
-    color: Colors.textPrimary,
+    fontWeight: '500',
+  },
+
+  // Explanation
+  explanationContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
+  explanationLabel: {
+    ...Typography.caption,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+  },
+  explanation: {
+    ...Typography.bodyLarge,
+    lineHeight: 28,
+  },
+
+  // Action hint
+  actionHint: {
+    marginHorizontal: 24,
+    marginBottom: 24,
+    padding: 16,
+    borderRadius: 12,
+  },
+  actionText: {
+    ...Typography.body,
+    fontWeight: '500',
+    lineHeight: 26,
   },
 });

@@ -172,7 +172,7 @@ export const analyzeMessageWithAI = async (messageContent: string): Promise<Scam
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 1024,
         messages: [
           {
@@ -210,7 +210,9 @@ Focus on protecting seniors from financial harm and provide clear, actionable gu
     });
 
     if (!response.ok) {
-      throw new Error(`Claude API error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text().catch(() => 'Unknown error');
+      console.warn(`Claude API error (${response.status}): ${errorText}. Falling back to rule-based detection.`);
+      throw new Error(`Claude API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -254,8 +256,12 @@ Focus on protecting seniors from financial harm and provide clear, actionable gu
       messageContent,
     };
   } catch (error) {
-    console.error('Error calling Claude Sonnet 4.5 API:', error);
+    // Only log critical errors, not 503 service unavailable (temporary)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (!errorMessage.includes('503')) {
+      console.error('Error calling Claude API:', error);
+    }
     // Fallback to rule-based detection on error
-    return analyzeMessage(messageContent);
+    return analyzeMessageRuleBased(messageContent);
   }
 };

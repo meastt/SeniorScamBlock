@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View } from 'react-native';
 import { Colors, Shadows } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
 import { Responsive } from '../theme/responsive';
@@ -33,6 +34,7 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
   hapticFeedback = true,
   highContrast = false,
 }) => {
+  const { colors } = useTheme();
   const getButtonStyle = (): ViewStyle => {
     // Enhanced touch targets for seniors (minimum 48x48 points)
     const minTouchTarget = 48;
@@ -49,6 +51,8 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       paddingVertical: size === 'large' ? Spacing.md :
                        size === 'medium' ? Spacing.sm : Spacing.xs,
       borderRadius: Spacing.radiusMedium,
+      borderWidth: 3,
+      borderColor: colors.border,
       justifyContent: 'center',
       alignItems: 'center',
       flexDirection: 'row',
@@ -62,7 +66,7 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
     if (disabled) {
       return {
         ...baseStyle,
-        backgroundColor: Colors.buttonDisabled,
+        backgroundColor: colors.buttonDisabled,
       };
     }
 
@@ -70,40 +74,48 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       case 'primary':
         return {
           ...baseStyle,
-          backgroundColor: Colors.buttonPrimary,
+          backgroundColor: colors.primary,
+          borderColor: colors.primary,
+          borderWidth: 0,
           ...Shadows.sm,
         };
       case 'secondary':
         return {
           ...baseStyle,
-          backgroundColor: highContrast ? Colors.white : Colors.buttonSecondary,
-          borderWidth: highContrast ? 2 : 1,
-          borderColor: highContrast ? Colors.textPrimary : Colors.border,
+          backgroundColor: colors.backgroundSecondary,
+          borderColor: colors.border,
+          borderWidth: 2,
         };
       case 'danger':
         return {
           ...baseStyle,
-          backgroundColor: Colors.danger,
+          backgroundColor: colors.danger,
+          borderColor: colors.danger,
+          borderWidth: 0,
           ...Shadows.sm,
         };
       case 'success':
         return {
           ...baseStyle,
-          backgroundColor: Colors.success,
+          backgroundColor: colors.success,
+          borderColor: colors.success,
+          borderWidth: 0,
           ...Shadows.sm,
         };
       case 'premium':
         return {
           ...baseStyle,
-          backgroundColor: Colors.premium,
+          backgroundColor: colors.accent,
+          borderColor: colors.accent,
+          borderWidth: 0,
           ...Shadows.sm,
         };
       case 'ghost':
         return {
           ...baseStyle,
           backgroundColor: 'transparent',
-          borderWidth: 1,
-          borderColor: Colors.primary,
+          borderWidth: 2,
+          borderColor: colors.primary,
         };
       default:
         return baseStyle;
@@ -120,7 +132,7 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
     if (disabled) {
       return {
         ...baseStyle,
-        color: Colors.textSecondary,
+        color: colors.textSecondary,
       };
     }
 
@@ -131,17 +143,17 @@ export const SeniorButton: React.FC<SeniorButtonProps> = ({
       case 'premium':
         return {
           ...baseStyle,
-          color: Colors.textInverse,
+          color: colors.textInverse,
         };
       case 'secondary':
         return {
           ...baseStyle,
-          color: Colors.textPrimary,
+          color: colors.textPrimary,
         };
       case 'ghost':
         return {
           ...baseStyle,
-          color: Colors.primary,
+          color: colors.primary,
         };
       default:
         return baseStyle;

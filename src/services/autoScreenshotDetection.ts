@@ -109,20 +109,25 @@ export const startScreenshotMonitoring = (
 
     try {
       const latestScreenshot = await getLatestScreenshot();
-      if (latestScreenshot) {
+      if (latestScreenshot && MediaLibrary) {
         // Check if this is a new screenshot (created after we started monitoring)
         const asset = await MediaLibrary.getAssetInfoAsync(latestScreenshot);
-        if (asset.creationTime && asset.creationTime > lastCheckedTime) {
+        if (asset && asset.creationTime && asset.creationTime > lastCheckedTime) {
           console.log('New screenshot detected:', latestScreenshot);
           onNewScreenshot(latestScreenshot);
         }
       }
     } catch (error) {
-      console.error('Error monitoring screenshots:', error);
+      // Silently handle screenshot monitoring errors in Expo Go
+      if (!isExpoGo && MediaLibrary) {
+        console.error('Error monitoring screenshots:', error);
+      }
     }
 
-    // Check again in 5 seconds
-    setTimeout(checkForNewScreenshots, 5000);
+    // Check again in 5 seconds (only if still monitoring)
+    if (isMonitoring) {
+      setTimeout(checkForNewScreenshots, 5000);
+    }
   };
 
   // Start monitoring

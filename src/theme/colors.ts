@@ -1,138 +1,232 @@
 /**
- * Elder Sentry Color System
+ * Elder Sentry Color System - Professional Protection
  *
- * Philosophy: Warm, protective, trustworthy
- * - Teal primary: Professional shield/protection symbolism
- * - Warm grays: Comfortable, not clinical
- * - Gold premium: Traditional value signaling
- * - Clear severity hierarchy: success → warning → danger → critical
- *
- * WCAG AAA Compliance:
- * - textPrimary: 16.5:1 contrast ratio
- * - textSecondary: 7.2:1 contrast ratio
- * - textTertiary: 4.6:1 (large text only, 18px+)
- *
- * Usage:
- * - Use 'danger' for scam alerts (serious but controlled)
- * - Use 'critical' for immediate action required (STOP)
- * - Use 'warning' for suspicious activity (be cautious)
- * - Use 'success' for verified safe messages
- * - Use 'verified' for highly trusted sources
- * - Use 'neutral' for unknown/uncertain states
+ * Philosophy: Trustworthy, sophisticated, accessible
+ * - Warm neutrals create comfort without condescension
+ * - Clear semantic hierarchy for instant understanding
+ * - Subtle depth through elevation, not decoration
+ * - WCAG AAA compliant with purposeful contrast
  */
 
 export const Colors = {
-  // Base
+  // Foundation
   white: '#FFFFFF',
-  black: '#1C1917', // Warm black, not pure black
+  black: '#1A1A1A',
 
-  // Backgrounds - warm neutral grays
-  background: '#FAF9F7', // Warm off-white
+  // Backgrounds - Warm, inviting neutrals
+  background: '#FAFBFC',
   backgroundSecondary: '#FFFFFF',
-  backgroundTertiary: '#F5F3F0', // Subtle warm tint
+  backgroundElevated: '#FFFFFF',
 
-  // Text - All WCAG AAA compliant on white
-  textPrimary: '#1C1917', // 16.5:1 ratio ✓
-  textSecondary: '#57534E', // 7.2:1 ratio ✓
-  textTertiary: '#78716C', // 4.6:1 ratio ✓ (large text only)
+  // Text - Clear, accessible hierarchy
+  textPrimary: '#1A1A1A',
+  textSecondary: '#5F6B7A',
+  textTertiary: '#9CA3AF',
   textInverse: '#FFFFFF',
 
-  // Primary brand - Warm, trustworthy teal (like a protective shield)
-  primary: '#0F766E', // Deep teal - professional, protective
-  primaryHover: '#0D5F58',
-  primaryLight: '#CCFBF1',
+  // Brand - Trustworthy blue with warmth
+  primary: '#0F766E', // Deep teal - professional, calming
+  primaryLight: '#F0FDFA',
   primaryDark: '#134E4A',
 
-  // Danger - CRITICAL scam alerts
-  danger: '#B91C1C', // Deep red - serious, not playful
-  dangerHover: '#991B1B',
-  dangerLight: '#FEE2E2',
-  dangerDark: '#7F1D1D',
+  // Accent - Premium gold for highlights
+  accent: '#B45309', // Warm amber - valued, protected
+  accentLight: '#FEF3C7',
+  accentDark: '#78350F',
 
-  // Critical - Even more urgent than danger
-  critical: '#DC2626', // Brighter red for STOP EVERYTHING
-  criticalLight: '#FEF2F2',
-  criticalDark: '#991B1B',
+  // Semantic States - Clear, immediate
+  danger: '#DC2626', // Clear red - stop, danger
+  dangerLight: '#FEF2F2',
+  dangerDark: '#991B1B',
 
-  // Warning - Suspicious activity
-  warning: '#CA8A04', // Warm amber - caution without panic
-  warningHover: '#A16207',
-  warningLight: '#FEF9C3',
-  warningDark: '#854D0E',
+  warning: '#EA580C', // Alert orange - caution
+  warningLight: '#FFF7ED',
+  warningDark: '#9A3412',
 
-  // Success - Verified safe
-  success: '#15803D', // Warm green - reassuring
-  successHover: '#166534',
-  successLight: '#DCFCE7',
-  successDark: '#14532D',
+  success: '#059669', // Confident green - safe
+  successLight: '#F0FDF4',
+  successDark: '#065F46',
 
-  // Verified - Extra safe, trusted source
-  verified: '#16A34A', // Brighter green - confident
-  verifiedLight: '#F0FDF4',
-  verifiedDark: '#15803D',
+  // UI Elements
+  border: '#E5E7EB',
+  borderMedium: '#D1D5DB',
+  borderDark: '#9CA3AF',
 
-  // Neutral - Unknown/uncertain
-  neutral: '#6B7280', // Balanced gray - neither good nor bad
-  neutralLight: '#F3F4F6',
-  neutralDark: '#374151',
+  // Interactive
+  buttonPrimary: '#0F766E',
+  buttonSecondary: '#FFFFFF',
+  buttonDisabled: '#F3F4F6',
 
-  // Info - Educational content
-  info: '#0891B2', // Cyan - informative but friendly
-  infoLight: '#CFFAFE',
-  infoDark: '#155E75',
+  // Elevation System
+  shadowSm: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  shadowMd: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  shadowLg: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 6,
+  },
 
-  // Premium - Gold tones for value
-  premium: '#CA8A04', // Rich gold - signals quality
-  premiumHover: '#A16207',
-  premiumLight: '#FEF9C3',
-  premiumDark: '#854D0E',
-  premiumAccent: '#F59E0B', // Brighter gold for highlights
-
-  // Gradients for modern visual hierarchy
-  gradientPrimary: ['#0F766E', '#134E4A'],
-  gradientPremium: ['#CA8A04', '#F59E0B'],
-  gradientSuccess: ['#15803D', '#16A34A'],
-  gradientCard: ['#FFFFFF', '#FAF9F7'],
-
-  // Modern shadows for depth
+  // Aliases for backward compatibility
+  backgroundTertiary: '#FAFBFC',
+  lightBorder: '#E5E7EB',
+  cardBackground: '#FFFFFF',
   shadowSoft: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 2,
   },
+  shadowStrong: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 6,
+  },
+  primaryHover: '#1565C0',
+  dangerHover: '#B71C1C',
+  dangerDark: '#B71C1C',
+  warningHover: '#E65100',
+  warningDark: '#E65100',
+  successHover: '#2E7D32',
+  successDark: '#2E7D32',
+  info: '#2196F3',
+  infoLight: '#E3F2FD',
+  infoDark: '#1565C0',
+  premium: '#D4AF37',
+  premiumLight: '#F8F3E3',
+  premiumDark: '#9C7C1A',
+  premiumHover: '#9C7C1A',
+  premiumAccent: '#D4AF37',
+  buttonPrimaryHover: '#1565C0',
+  buttonSecondaryHover: '#F8F9FA',
+  primaryButton: '#2196F3',
+  secondaryButton: '#FFFFFF',
+  disabledButton: '#E2E8F0',
+  lightBorder: '#E2E8F0',
+  borderMedium: '#CBD5E0',
+  borderFocus: '#2196F3',
+  cardBackground: '#F8F9FA',
+  error: '#D32F2F',
+  errorLight: '#FDECEA',
+  dangerRed: '#D32F2F',
+  dangerRedLight: '#FDECEA',
+  warningYellow: '#F57C00',
+  warningYellowLight: '#FFF3E0',
+  warningYellowDark: '#E65100',
+  safeGreen: '#388E3C',
+  safeGreenLight: '#E8F5E9',
+  gradientPrimary: ['#2196F3', '#1565C0'],
+  gradientPremium: ['#D4AF37', '#9C7C1A'],
+  gradientSuccess: ['#66BB6A', '#388E3C'],
+  gradientCard: ['#FFFFFF', '#F8F9FA'],
   shadowStrong: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
-    elevation: 6,
+    elevation: 4,
   },
 
-  // Interactive elements
-  buttonPrimary: '#0F766E',
-  buttonPrimaryHover: '#0D5F58',
-  buttonSecondary: '#F5F3F0',
-  buttonSecondaryHover: '#E7E5E4',
-  buttonDisabled: '#D6D3D1',
-
-  // Borders - Unified warm gray family
-  border: '#E7E5E4',
-  borderMedium: '#D6D3D1',
-  borderDark: '#A8A29E',
-  borderFocus: '#0F766E',
-
-  // Dark mode variants (for future use)
+  // Dark theme - Senior-friendly (not too dark)
   dark: {
-    background: '#1C1917',
-    backgroundSecondary: '#292524',
-    backgroundTertiary: '#44403C',
-    textPrimary: '#FAFAF9',
-    textSecondary: '#D6D3D1',
-    textTertiary: '#A8A29E',
-    border: '#44403C',
-    borderMedium: '#57534E',
+    // Base
+    white: '#FFFFFF',
+    black: '#000000',
+
+    // Backgrounds - Comfortable dark for aging eyes
+    background: '#2A2A2A',
+    backgroundSecondary: '#3A3A3A',
+    backgroundElevated: '#3A3A3A',
+
+    // Text - High contrast
+    textPrimary: '#FFFFFF',
+    textSecondary: '#D1D5DB',
+    textInverse: '#000000',
+
+    // Primary accent
+    primary: '#60A5FA',
+    primaryLight: '#1E3A8A',
+    primaryDark: '#3B82F6',
+
+    // Secondary accent
+    accent: '#FCD34D',
+    accentLight: '#4A3A1A',
+    accentDark: '#F59E0B',
+
+    // Semantic: Danger
+    danger: '#F87171',
+    dangerLight: '#4A1A1A',
+
+    // Semantic: Warning
+    warning: '#FB923C',
+    warningLight: '#4A2A1A',
+
+    // Semantic: Success
+    success: '#6EE7B7',
+    successLight: '#1A4A2A',
+
+    // Borders
+    border: '#4B5563',
+    borderMedium: '#6B7280',
+    borderDark: '#6B7280',
+
+    // Buttons
+    buttonPrimary: '#60A5FA',
+    buttonSecondary: '#3A3A3A',
+    buttonDisabled: '#4B5563',
+
+    // Aliases for backward compatibility
+    backgroundTertiary: '#3A3A3A',
+    textTertiary: '#D1D5DB',
+    cardBackground: '#3A3A3A',
+    primaryHover: '#3B82F6',
+    dangerHover: '#EF4444',
+    dangerDark: '#EF4444',
+    warningHover: '#F97316',
+    warningDark: '#F97316',
+    successHover: '#10B981',
+    successDark: '#10B981',
+    info: '#60A5FA',
+    infoLight: '#1E3A8A',
+    infoDark: '#3B82F6',
+    premium: '#FCD34D',
+    premiumLight: '#4A3A1A',
+    premiumDark: '#F59E0B',
+    premiumHover: '#F59E0B',
+    premiumAccent: '#FCD34D',
+    buttonPrimaryHover: '#3B82F6',
+    buttonSecondaryHover: '#4A4A4A',
+    primaryButton: '#60A5FA',
+    secondaryButton: '#3A3A3A',
+    disabledButton: '#4B5563',
+    lightBorder: '#4B5563',
+    borderMedium: '#6B7280',
+    borderFocus: '#60A5FA',
+    error: '#F87171',
+    errorLight: '#4A1A1A',
+    dangerRed: '#F87171',
+    dangerRedLight: '#4A1A1A',
+    warningYellow: '#FB923C',
+    warningYellowLight: '#4A2A1A',
+    warningYellowDark: '#F97316',
+    safeGreen: '#6EE7B7',
+    safeGreenLight: '#1A4A2A',
   },
 };
 

@@ -14,6 +14,7 @@ import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
 import { format } from 'date-fns';
+import { InboxIcon, CircleIcon } from '../components/Icons';
 
 /**
  * Recent Screen - Shows history of checked messages
@@ -25,18 +26,14 @@ const RecentScreen = () => {
 
   const getRiskColor = (riskLevel: ScamRiskLevel) => {
     switch (riskLevel) {
-      case 'RED': return Colors.dangerRed;
-      case 'YELLOW': return Colors.warningYellow;
-      case 'GREEN': return Colors.safeGreen;
+      case 'RED': return Colors.danger;
+      case 'YELLOW': return Colors.warning;
+      case 'GREEN': return Colors.success;
     }
   };
 
-  const getRiskIcon = (riskLevel: ScamRiskLevel) => {
-    switch (riskLevel) {
-      case 'RED': return '🔴';
-      case 'YELLOW': return '🟡';
-      case 'GREEN': return '🟢';
-    }
+  const getRiskIcon = (riskLevel: ScamRiskLevel, color: string) => {
+    return <CircleIcon size={12} color={color} />;
   };
 
   const handleItemPress = (result: any) => {
@@ -50,7 +47,9 @@ const RecentScreen = () => {
 
         {analysisHistory.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>📭</Text>
+            <View style={styles.emptyIconContainer}>
+              <InboxIcon size={64} color={Colors.textTertiary} />
+            </View>
             <Text style={styles.emptyText}>
               No messages checked yet.{'\n'}
               Go to Home to check your first message.
@@ -63,22 +62,24 @@ const RecentScreen = () => {
                 key={item.id}
                 style={[
                   styles.listItem,
-                  { borderLeftColor: getRiskColor(item.riskLevel) }
+                  { borderColor: getRiskColor(item.riskLevel) }
                 ]}
                 onPress={() => handleItemPress(item)}
                 activeOpacity={0.7}
               >
                 <View style={styles.itemHeader}>
-                  <Text style={styles.itemIcon}>{getRiskIcon(item.riskLevel)}</Text>
-                  <Text style={[styles.itemRisk, { color: getRiskColor(item.riskLevel) }]}>
-                    {item.riskLevel}
-                  </Text>
+                  <View style={styles.itemRiskContainer}>
+                    {getRiskIcon(item.riskLevel, getRiskColor(item.riskLevel))}
+                    <Text style={[styles.itemRisk, { color: getRiskColor(item.riskLevel) }]}>
+                      {item.riskLevel}
+                    </Text>
+                  </View>
                 </View>
-                
+
                 <Text style={styles.itemMessage} numberOfLines={2}>
                   {item.message}
                 </Text>
-                
+
                 <Text style={styles.itemDate}>
                   {format(new Date(item.timestamp), 'MMM d, h:mm a')}
                 </Text>
@@ -110,8 +111,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: Spacing.xxl,
   },
-  emptyIcon: {
-    fontSize: 88,
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: Colors.backgroundSecondary,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: Spacing.lg,
   },
   emptyText: {
@@ -125,23 +131,20 @@ const styles = StyleSheet.create({
   listItem: {
     backgroundColor: Colors.white,
     padding: Spacing.lg,
-    borderRadius: 8,
-    borderLeftWidth: 8,
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.lightBorder,
     minHeight: Spacing.minTouchTarget,
   },
   itemHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: Spacing.sm,
   },
-  itemIcon: {
-    fontSize: Spacing.iconMedium,
-    marginRight: Spacing.sm,
+  itemRiskContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
   itemRisk: {
-    ...Typography.subheadline,
+    ...Typography.subtitle,
     fontWeight: '700',
   },
   itemMessage: {

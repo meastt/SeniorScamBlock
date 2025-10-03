@@ -33,8 +33,8 @@ export const Spacing = {
   sectionSpacing: 24,
 
   // Button dimensions - accessible but not comical
-  buttonHeight: 56,
-  buttonHeightSmall: 44,
+  buttonHeight: 88,
+  buttonHeightSmall: 56,
   buttonMinWidth: 120,
   buttonPadding: 16,
 
@@ -46,10 +46,11 @@ export const Spacing = {
   iconXLarge: 32,
   iconHuge: 40,
   iconMassive: 48,
+  iconEnormous: 64,
 
   // Touch targets - WCAG AA compliant (44px minimum)
-  minTouchTarget: 44,
-  comfortableTouchTarget: 56,
+  minTouchTarget: 88,
+  comfortableTouchTarget: 96,
 
   // Border radius
   radiusSmall: 6,
@@ -57,6 +58,10 @@ export const Spacing = {
   radiusLarge: 12,
   radiusXLarge: 16,
   radiusRound: 9999,
+
+  // Very large paddings referenced by screens
+  enormous: 80,
+  huge: 48,
 };
 
 export default Spacing;

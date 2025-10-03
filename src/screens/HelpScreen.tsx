@@ -4,43 +4,70 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import { Colors, Shadows } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
 import { Responsive } from '../theme/responsive';
+import {
+  LifebuoyIcon,
+  SettingsIcon,
+  AlertCircleIcon,
+  PhoneIcon,
+  MailIcon,
+  BookOpenIcon,
+  ShieldIcon,
+  AlertTriangleIcon,
+} from '../components/Icons';
 
 /**
  * Help Screen - Support resources and emergency contacts
  * Focused on getting help when needed
  */
 const HelpScreen = () => {
+  const navigation = useNavigation();
   const { subscription } = useApp();
+  const { colors } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.headerIcon}>
-            <Text style={styles.headerEmoji}>🆘</Text>
+          <View style={[styles.headerIconContainer, { backgroundColor: colors.primaryLight }]}>
+            <LifebuoyIcon size={48} color={colors.primary} />
           </View>
-          <Text style={styles.headerTitle}>Get Help</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Get Help</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
             Resources and support when you need assistance
           </Text>
+
+          {/* Settings Button */}
+          <TouchableOpacity
+            style={[styles.settingsButton, { backgroundColor: colors.primaryLight }]}
+            onPress={() => navigation.navigate('Settings' as never)}
+            activeOpacity={0.7}
+          >
+            <SettingsIcon size={20} color={colors.primary} />
+            <Text style={[styles.settingsText, { color: colors.primary }]}>
+              App Settings
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Subscription Status */}
-        <View style={styles.statusCard}>
-          <Text style={styles.statusTitle}>Your Plan</Text>
-          <Text style={styles.statusTier}>
-            {subscription.tier === 'FREE' ? '🆓 Free Plan' : '⭐ Premium Plan'}
+        <View style={[styles.statusCard, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.statusTitle, { color: colors.textSecondary }]}>Your Plan</Text>
+          <Text style={[styles.statusTier, { color: colors.textPrimary }]}>
+            {subscription.tier === 'FREE' ? 'Free Plan' : 'Premium Plan'}
           </Text>
           {subscription.tier === 'FREE' && (
-            <Text style={styles.statusText}>
+            <Text style={[styles.statusText, { color: colors.textPrimary }]}>
               {subscription.monthlyLimit - subscription.messageCheckCount} checks remaining this month
             </Text>
           )}
@@ -48,74 +75,78 @@ const HelpScreen = () => {
 
         {/* Support Resources */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Emergency Contacts</Text>
-          <Text style={styles.sectionDescription}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Emergency Contacts</Text>
+          <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
             Important phone numbers and resources
           </Text>
 
-          <View style={[styles.contactCard, styles.emergencyCard]}>
-            <View style={styles.contactHeader}>
-              <Text style={styles.contactIcon}>🚨</Text>
-              <View style={styles.contactHeaderText}>
-                <Text style={styles.contactTitle}>Report a Scam</Text>
-                <Text style={styles.contactSubtitle}>Federal Trade Commission</Text>
-              </View>
+          <View style={[styles.contactCard, styles.emergencyCard, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.contactIcon, { backgroundColor: colors.backgroundSecondary }]}>
+              <AlertCircleIcon size={24} color={Colors.danger} />
             </View>
-            <Text style={styles.contactInfo}>
-              📞 1-877-382-4357{'\n'}
-              🌐 ReportFraud.ftc.gov
+            <View style={styles.contactHeaderText}>
+              <Text style={[styles.contactTitle, { color: colors.textPrimary }]}>Report a Scam</Text>
+              <Text style={[styles.contactSubtitle, { color: colors.textSecondary }]}>Federal Trade Commission</Text>
+            </View>
+            <Text style={[styles.contactInfo, { color: colors.textPrimary }]}>
+              1-877-382-4357{'\n'}
+              ReportFraud.ftc.gov
             </Text>
           </View>
 
-          <View style={[styles.contactCard, styles.emergencyCard]}>
-            <View style={styles.contactHeader}>
-              <Text style={styles.contactIcon}>👴</Text>
-              <View style={styles.contactHeaderText}>
-                <Text style={styles.contactTitle}>Elder Abuse Hotline</Text>
-                <Text style={styles.contactSubtitle}>National hotline for abuse reporting</Text>
-              </View>
+          <View style={[styles.contactCard, styles.emergencyCard, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.contactIcon, { backgroundColor: colors.backgroundSecondary }]}>
+              <PhoneIcon size={24} color={Colors.danger} />
             </View>
-            <Text style={styles.contactInfo}>
-              📞 1-800-677-1116{'\n'}
+            <View style={styles.contactHeaderText}>
+              <Text style={[styles.contactTitle, { color: colors.textPrimary }]}>Elder Abuse Hotline</Text>
+              <Text style={[styles.contactSubtitle, { color: colors.textSecondary }]}>National hotline for abuse reporting</Text>
+            </View>
+            <Text style={[styles.contactInfo, { color: colors.textPrimary }]}>
+              1-800-677-1116{'\n'}
               Available 24/7
             </Text>
           </View>
 
-          <View style={[styles.contactCard, styles.supportCard]}>
-            <View style={styles.contactHeader}>
-              <Text style={styles.contactIcon}>🛡️</Text>
-              <View style={styles.contactHeaderText}>
-                <Text style={styles.contactTitle}>Elder Sentry Support</Text>
-                <Text style={styles.contactSubtitle}>Help with the app</Text>
-              </View>
+          <View style={[styles.contactCard, styles.supportCard, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.contactIcon, { backgroundColor: colors.backgroundSecondary }]}>
+              <MailIcon size={24} color={colors.primary} />
             </View>
-            <Text style={styles.contactInfo}>
-              📧 support@eldersentry.com{'\n'}
-              🌐 www.eldersentry.com{'\n'}
-              📱 Visit our support portal for FAQs
+            <View style={styles.contactHeaderText}>
+              <Text style={[styles.contactTitle, { color: colors.textPrimary }]}>Elder Sentry Support</Text>
+              <Text style={[styles.contactSubtitle, { color: colors.textSecondary }]}>Help with the app</Text>
+            </View>
+            <Text style={[styles.contactInfo, { color: colors.textPrimary }]}>
+              support@eldersentry.com{'\n'}
+              www.eldersentry.com{'\n'}
+              Visit our support portal for FAQs
             </Text>
           </View>
         </View>
 
         {/* Quick Actions */}
         <View style={styles.quickActionsSection}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Quick Actions</Text>
 
-          <View style={styles.quickActionCard}>
-            <Text style={styles.quickActionIcon}>💡</Text>
+          <View style={[styles.quickActionCard, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.quickActionIcon, { backgroundColor: colors.backgroundSecondary }]}>
+              <BookOpenIcon size={24} color={colors.primary} />
+            </View>
             <View style={styles.quickActionContent}>
-              <Text style={styles.quickActionTitle}>Learn About Scams</Text>
-              <Text style={styles.quickActionText}>
+              <Text style={[styles.quickActionTitle, { color: colors.textPrimary }]}>Learn About Scams</Text>
+              <Text style={[styles.quickActionText, { color: colors.textSecondary }]}>
                 Visit the Tips tab to read detailed guides about common scams and how to avoid them.
               </Text>
             </View>
           </View>
 
-          <View style={styles.quickActionCard}>
-            <Text style={styles.quickActionIcon}>🏠</Text>
+          <View style={[styles.quickActionCard, { backgroundColor: colors.cardBackground }]}>
+            <View style={[styles.quickActionIcon, { backgroundColor: colors.backgroundSecondary }]}>
+              <ShieldIcon size={24} color={colors.primary} />
+            </View>
             <View style={styles.quickActionContent}>
-              <Text style={styles.quickActionTitle}>Check a Message</Text>
-              <Text style={styles.quickActionText}>
+              <Text style={[styles.quickActionTitle, { color: colors.textPrimary }]}>Check a Message</Text>
+              <Text style={[styles.quickActionText, { color: colors.textSecondary }]}>
                 Go to the Home tab to analyze any suspicious text, email, or message you receive.
               </Text>
             </View>
@@ -123,11 +154,13 @@ const HelpScreen = () => {
         </View>
 
         {/* Important Reminder */}
-        <View style={styles.reminderCard}>
-          <Text style={styles.reminderIcon}>⚠️</Text>
+        <View style={[styles.reminderCard, { backgroundColor: colors.cardBackground }]}>
+          <View style={[styles.reminderIcon, { backgroundColor: colors.backgroundSecondary }]}>
+            <AlertTriangleIcon size={24} color={Colors.warning} />
+          </View>
           <View style={styles.reminderContent}>
-            <Text style={styles.reminderTitle}>Remember</Text>
-            <Text style={styles.reminderText}>
+            <Text style={[styles.reminderTitle, { color: colors.textPrimary }]}>Remember</Text>
+            <Text style={[styles.reminderText, { color: colors.textSecondary }]}>
               If something feels wrong, trust your instincts. Hang up, don't click, and ask for help. It's better to be safe than sorry!
             </Text>
           </View>
@@ -153,18 +186,14 @@ const styles = StyleSheet.create({
     paddingTop: Responsive.isTablet ? Spacing.huge : Spacing.xl,
     paddingBottom: Spacing.xl,
   },
-  headerIcon: {
-    width: Responsive.isTablet ? 100 : 80,
-    height: Responsive.isTablet ? 100 : 80,
-    borderRadius: Spacing.radiusRound,
-    backgroundColor: Colors.errorLight,
+  headerIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.lg,
-    ...Shadows.card,
-  },
-  headerEmoji: {
-    fontSize: Responsive.isTablet ? Spacing.iconEnormous : Spacing.iconMassive,
+    ...Shadows.md,
   },
   headerTitle: {
     ...Typography.largeTitle,
@@ -180,30 +209,42 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     lineHeight: 26,
   },
+  settingsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: Spacing.radiusLarge,
+    marginTop: Spacing.lg,
+    borderWidth: 2,
+    borderColor: Colors.primary,
+  },
+  settingsText: {
+    ...Typography.subtitle,
+    fontWeight: '600',
+  },
 
-  // Status Card
+  // Status Card - Note: uses theme colors from inline styles
   statusCard: {
     marginHorizontal: Responsive.getScreenMargin(),
     marginBottom: Spacing.xl,
-    backgroundColor: Colors.cardBackground,
     borderRadius: Spacing.radiusLarge,
     padding: Spacing.cardPadding,
     ...Shadows.card,
   },
   statusTitle: {
     ...Typography.callout,
-    color: Colors.textSecondary,
     marginBottom: Spacing.xs,
   },
   statusTier: {
     ...Typography.title,
-    color: Colors.textPrimary,
     marginBottom: Spacing.sm,
     fontWeight: '700',
   },
   statusText: {
     ...Typography.body,
-    color: Colors.textPrimary,
   },
 
   // Sections
@@ -213,121 +254,118 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     ...Typography.title,
-    color: Colors.textPrimary,
     marginBottom: Spacing.md,
     fontWeight: '700',
   },
   sectionDescription: {
     ...Typography.body,
-    color: Colors.textSecondary,
     marginBottom: Spacing.lg,
     lineHeight: 24,
   },
 
-  // Contact Cards
+  // Contact Cards - Note: uses theme colors from inline styles
   contactCard: {
-    backgroundColor: Colors.cardBackground,
     borderRadius: Spacing.radiusLarge,
     padding: Spacing.lg,
     marginBottom: Spacing.lg,
-    borderLeftWidth: 6,
+    borderWidth: 2,
     ...Shadows.card,
   },
   emergencyCard: {
-    borderLeftColor: Colors.error,
+    borderColor: Colors.danger,
   },
   supportCard: {
-    borderLeftColor: Colors.primary,
-  },
-  contactHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
+    borderColor: Colors.primary,
   },
   contactIcon: {
-    fontSize: Spacing.iconLarge,
-    marginRight: Spacing.md,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
   },
   contactHeaderText: {
-    flex: 1,
+    marginBottom: Spacing.md,
   },
   contactTitle: {
     ...Typography.subtitle,
     fontWeight: '700',
-    color: Colors.textPrimary,
     marginBottom: Spacing.xs,
   },
   contactSubtitle: {
     ...Typography.caption,
-    color: Colors.textSecondary,
   },
   contactInfo: {
     ...Typography.bodyLarge,
-    color: Colors.textPrimary,
     lineHeight: 28,
   },
 
-  // Quick Actions
+  // Quick Actions - Match contact card style
   quickActionsSection: {
     marginHorizontal: Responsive.getScreenMargin(),
     marginBottom: Spacing.xl,
   },
   quickActionCard: {
-    flexDirection: 'row',
-    backgroundColor: Colors.primaryLight,
     borderRadius: Spacing.radiusLarge,
     padding: Spacing.lg,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.lg,
     borderWidth: 2,
     borderColor: Colors.primary,
+    ...Shadows.card,
   },
   quickActionIcon: {
-    fontSize: Spacing.iconLarge,
-    marginRight: Spacing.md,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
   },
   quickActionContent: {
     flex: 1,
   },
   quickActionTitle: {
     ...Typography.subtitle,
-    color: Colors.primary,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
     fontWeight: '700',
   },
   quickActionText: {
-    ...Typography.body,
-    color: Colors.primary,
-    lineHeight: 24,
+    ...Typography.bodyLarge,
+    lineHeight: 28,
   },
 
-  // Reminder Card
+  // Reminder Card - Match contact card style
   reminderCard: {
     marginHorizontal: Responsive.getScreenMargin(),
-    flexDirection: 'row',
-    backgroundColor: Colors.warningLight,
-    borderRadius: Spacing.radiusXLarge,
-    padding: Spacing.cardPaddingLarge,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.lg,
     borderWidth: 2,
     borderColor: Colors.warning,
+    ...Shadows.card,
   },
   reminderIcon: {
-    fontSize: Spacing.iconXLarge,
-    marginRight: Spacing.md,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
   },
   reminderContent: {
     flex: 1,
   },
   reminderTitle: {
     ...Typography.subtitle,
-    color: Colors.warningYellowDark,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
     fontWeight: '700',
   },
   reminderText: {
-    ...Typography.body,
-    color: Colors.warningYellowDark,
-    lineHeight: 26,
-    fontWeight: '500',
+    ...Typography.bodyLarge,
+    lineHeight: 28,
   },
 });
 

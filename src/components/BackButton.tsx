@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Colors, Shadows } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { Spacing } from '../theme/spacing';
+import { useTheme } from '../context/ThemeContext';
 
 interface BackButtonProps {
   onPress?: () => void;
@@ -15,12 +16,13 @@ interface BackButtonProps {
  * Premium back button with sophisticated design
  * Accessible and elegant navigation component
  */
-export const BackButton: React.FC<BackButtonProps> = ({ 
-  onPress, 
+export const BackButton: React.FC<BackButtonProps> = ({
+  onPress,
   title = 'Back',
-  variant = 'default' 
+  variant = 'default'
 }) => {
   const navigation = useNavigation();
+  const { colors } = useTheme();
 
   const handlePress = () => {
     if (onPress) {
@@ -37,18 +39,18 @@ export const BackButton: React.FC<BackButtonProps> = ({
           ...styles.container,
           backgroundColor: 'transparent',
           borderWidth: 1,
-          borderColor: Colors.borderMedium,
+          borderColor: colors.borderMedium,
         };
       case 'premium':
         return {
           ...styles.container,
-          backgroundColor: Colors.premium,
-          ...Shadows.premium,
+          backgroundColor: colors.premium,
+          ...Shadows.sm,
         };
       default:
         return {
           ...styles.container,
-          backgroundColor: Colors.white,
+          backgroundColor: colors.backgroundSecondary,
           ...Shadows.sm,
         };
     }
@@ -59,12 +61,12 @@ export const BackButton: React.FC<BackButtonProps> = ({
       case 'premium':
         return {
           ...styles.text,
-          color: Colors.textInverse,
+          color: colors.textInverse,
         };
       default:
         return {
           ...styles.text,
-          color: Colors.textPrimary,
+          color: colors.textPrimary,
         };
     }
   };
@@ -74,14 +76,21 @@ export const BackButton: React.FC<BackButtonProps> = ({
       case 'premium':
         return {
           ...styles.arrow,
-          color: Colors.textInverse,
+          color: colors.textInverse,
         };
       default:
         return {
           ...styles.arrow,
-          color: Colors.primary,
+          color: colors.primary,
         };
     }
+  };
+
+  const getIconContainerStyle = () => {
+    return {
+      ...styles.iconContainer,
+      backgroundColor: colors.primaryLight,
+    };
   };
 
   return (
@@ -92,7 +101,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
       accessibilityRole="button"
       accessibilityLabel={`Go back to previous screen`}
     >
-      <View style={styles.iconContainer}>
+      <View style={getIconContainerStyle()}>
         <Text style={getArrowStyle()}>←</Text>
       </View>
       <Text style={getTextStyle()}>{title}</Text>
@@ -115,7 +124,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: Spacing.radiusRound,
-    backgroundColor: Colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.md,
